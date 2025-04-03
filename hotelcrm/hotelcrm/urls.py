@@ -1,23 +1,20 @@
+# hotel_mgmt/hotel_mgmt/urls.py
 from django.contrib import admin
-from django.urls import path, include
-from django.contrib.auth.views import LogoutView
-from django.conf import settings
-from django.conf.urls.static import static 
-
+from django.urls import path, include 
+from hotelcrm.hotelcrm import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls), 
-    path("accounts", include("accounts.urls")),
-    path("billing/", include("billing.urls")),  
-    path("customers/", include("costumers.urls")),
-    path("expenses/", include("expenses.urls")),
-    path("hotel/", include("hotel.urls")),
-    path("housekeeping/", include("housekeeping.urls")),
-    path("reports/",include("reports.urls")),
-    path("reservations/", include("reservations.urls")),
-    path("restaurant/", include("restaurant.urls")),
-    path("rooms/", include("rooms.urls")),
-    path("logout/", LogoutView.as_view(next_page="login"), name="logout"),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),       # accounts app
+    path('hotel/', include('hotel.urls')),             # hotel app
+    path('rooms/', include('rooms.urls')),             # rooms app
+    path('reservations/', include('reservations.urls')),
+    path('customers/', include('customers.urls')),
+    path('restaurant/', include('restaurant.urls')),
+    path('billing/', include('billing.urls')),
+    path('housekeeping/', include('housekeeping.urls')), 
+    path('reports/', include('reports.urls')),
+    # etc.
 ]
 
 # Add static files support in development
