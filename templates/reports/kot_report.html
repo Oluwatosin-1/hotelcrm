@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">KOT (Kitchen Order Ticket) Report</h4>
+      </div>
+      <div class="card-body">
+        <p>This report lists all KOTs along with their itemized details.</p>
+        <!-- Summary section -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <div class="alert alert-info text-center">
+              <h5>Total KOTs</h5>
+              <p class="display-6">{{ total_kots }}</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="alert alert-success text-center">
+              <h5>Items Served</h5>
+              <p class="display-6">{{ total_items_served }}</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="alert alert-secondary text-center">
+              <h5>Average Items per KOT</h5>
+              <p class="display-6">{{ average_items_per_kot }}</p>
+            </div>
+          </div>
+        </div>
+        <!-- Detailed KOT table -->
+        <h5>Detailed KOT Information</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>KOT #</th>
+              <th>Table Number</th>
+              <th>Created At</th>
+              <th>Total Items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for kot in kot_reports %}
+            <tr>
+              <td>{{ kot.id }}</td>
+              <td>{{ kot.table_number }}</td>
+              <td>{{ kot.created_at|date:"Y-m-d H:i" }}</td>
+              <td>{{ kot.total_items }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center">No KOT data available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

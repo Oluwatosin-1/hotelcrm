@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Daily Sales Report</h4>
+        <span class="text-muted">{{ now|date:"Y-m-d" }}</span>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <div class="alert alert-info text-center">
+              <h5>Total Sales</h5>
+              <p class="display-6">₦{{ daily_sales }}</p>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <!-- You can optionally include a summary table/chart here -->
+            <p>Summary details or trends (to be implemented) go here.</p>
+          </div>
+        </div>
+        <!-- Detailed report sections -->
+        <h5>Detailed Sales Data</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {# Loop over a context variable (e.g., daily_sales_data) when available #}
+            {% for sale in daily_sales_data %}
+            <tr>
+              <td>{{ sale.invoice_id }}</td>
+              <td>{{ sale.customer_name }}</td>
+              <td>₦{{ sale.amount }}</td>
+              <td>{{ sale.date|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center">No sales data available for today.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

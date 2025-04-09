@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper"><div class="content">
+  <div class="card shadow-sm">
+    <div class="card-header bg-danger text-white">
+      <h4 class="mb-0">Delete Room</h4>
+    </div>
+    <div class="card-body">
+      <p>Delete room <strong>{{ object.room_number }}</strong>?</p>
+      <form method="post">{% csrf_token %}
+        <a href="{% url 'rooms:room-list' %}" class="btn btn-light">Cancel</a>
+        <button class="btn btn-danger">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+</div></div>
+{% endblock %}

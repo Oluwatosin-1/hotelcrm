@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4>Laundry Records</h4>
+      <a href="{% url 'housekeeping:laundry-create' %}" class="btn btn-primary">Add Laundry</a>
+    </div>
+    <div class="card-body">
+      {% if laundry_list %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Reservation</th>
+              <th>Item Description</th>
+              <th>Cost</th>
+              <th>Status</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for laundry in laundry_list %}
+            <tr>
+              <td>{{ laundry.pk }}</td>
+              <td>{% if laundry.reservation %}Reservation #{{ laundry.reservation.pk }}{% else %}N/A{% endif %}</td>
+              <td>{{ laundry.item_description }}</td>
+              <td>₦{{ laundry.cost }}</td>
+              <td>{{ laundry.status|capfirst }}</td>
+              <td class="text-center">
+                <a href="{% url 'housekeeping:laundry-update' laundry.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-center">No laundry records found.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h4>Expense Details - Expense #{{ expense.pk }}</h4>
+    </div>
+    <div class="card-body">
+      <p><strong>Description:</strong> {{ expense.description }}</p>
+      <p><strong>Amount:</strong> ₦{{ expense.amount }}</p>
+      <p><strong>Date:</strong> {{ expense.date|date:"Y-m-d H:i" }}</p>
+      <p><strong>Category:</strong> {{ expense.category.name if expense.category else "N/A" }}</p>
+      <p><strong>Subcategory:</strong> {{ expense.subcategory.name if expense.subcategory else "N/A" }}</p>
+      <p><strong>Payment Method:</strong> {{ expense.payment_method|default:"N/A" }}</p>
+      <p><strong>Notes:</strong> {{ expense.notes|default:"No additional notes." }}</p>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <a href="{% url 'expenses:expense-list' %}" class="btn btn-light">Back to List</a>
+      <div>
+        <a href="{% url 'expenses:expense-update' expense.pk %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'expenses:expense-delete' expense.pk %}" class="btn btn-danger">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h4 class="mb-0">Menu Items</h4>
+        <a href="{% url 'restaurant:item-create' %}" class="btn btn-primary float-end">Add New Item</a>
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Available</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.category.name }}</td>
+              <td>{{ item.price }}</td>
+              <td>{{ item.is_available|yesno:"Yes,No" }}</td>
+              <td>
+                <a href="{% url 'restaurant:item-update' item.id %}" class="btn btn-sm btn-info">Edit</a>
+                <a href="{% url 'restaurant:item-delete' item.id %}" class="btn btn-sm btn-danger">Delete</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5">No menu items available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

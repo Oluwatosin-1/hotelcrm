@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper"><div class="content">
+
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Reservation #{{ reservation.pk }}</h4>
+      <div>
+        <a href="{% url 'reservations:reservation-update' reservation.pk %}" class="btn btn-sm btn-primary">
+          <i class="far fa-edit"></i>
+        </a>
+        <a href="{% url 'reservations:reservation-delete' reservation.pk %}" class="btn btn-sm btn-danger">
+          <i class="far fa-trash-alt"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Customer</dt>
+        <dd class="col-sm-9">{{ reservation.customer.full_name }}</dd>
+
+        <dt class="col-sm-3">Room</dt>
+        <dd class="col-sm-9">
+          {{ reservation.room.room_number }} ({{ reservation.room.category.name }})
+        </dd>
+
+        <dt class="col-sm-3">Planned&nbsp;Check‑In</dt>
+        <dd class="col-sm-9">{{ reservation.check_in|date:"M j, Y" }}</dd>
+
+        <dt class="col-sm-3">Planned&nbsp;Check‑Out</dt>
+        <dd class="col-sm-9">{{ reservation.check_out|date:"M j, Y" }}</dd>
+
+        <dt class="col-sm-3">Guests</dt>
+        <dd class="col-sm-9">{{ reservation.number_of_guests }}</dd>
+
+        <dt class="col-sm-3">Deposit</dt>
+        <dd class="col-sm-9">{{ reservation.deposit_amount }}</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9 text-capitalize">{{ reservation.get_status_display }}</dd>
+
+        <dt class="col-sm-3">Notes</dt>
+        <dd class="col-sm-9">{{ reservation.notes|default:"—" }}</dd>
+      </dl>
+
+      {# ───── Items & charges ───── #}
+      {% if reservation.items.exists %}
+        <hr><h5 class="fw-semibold">Food Items</h5>
+        <ul class="mb-3">
+          {% for it in reservation.items.all %}
+            <li>{{ it.menu_item.name }} × {{ it.quantity }} – {{ it.line_total }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if reservation.misc.exists %}
+        <h5 class="fw-semibold">Misc Charges</h5>
+        <ul class="mb-0">
+          {% for m in reservation.misc.all %}
+            <li>{{ m.description }} – {{ m.amount }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    {% if reservation.invoice %}
+      <div class="card-footer">
+        <a href="{% url 'billing:invoice-detail' reservation.invoice.pk %}" class="btn btn-outline-primary">
+          View Invoice
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+</div></div>
+{% endblock %}

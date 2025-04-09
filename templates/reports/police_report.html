@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">Police Report</h4>
+      </div>
+      <div class="card-body">
+        <p>This report provides details required for police monitoring or investigations.</p>
+        <!-- Example summary section -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="alert alert-warning">
+              <h5>Total Incidents</h5>
+              <p class="display-6">{{ total_incidents }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="alert alert-secondary">
+              <h5>Unresolved Cases</h5>
+              <p class="display-6">{{ unresolved_cases }}</p>
+            </div>
+          </div>
+        </div>
+        <!-- Detailed police report table -->
+        <h5>Incident Details</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Case ID</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Date Reported</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in police_reports %}
+            <tr>
+              <td>{{ report.case_id }}</td>
+              <td>{{ report.description }}</td>
+              <td>{{ report.status }}</td>
+              <td>{{ report.date_reported|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center">No police reports available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

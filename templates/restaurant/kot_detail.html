@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h4 class="mb-0">KOT Details (KOT #{{ kot.pk }})</h4>
+      </div>
+      <div class="card-body">
+        <p><strong>Table Number:</strong> {{ kot.table_number }}</p>
+        <p><strong>Created At:</strong> {{ kot.created_at|date:"Y-m-d H:i" }}</p>
+        <p><strong>Notes:</strong> {{ kot.notes|default:"N/A" }}</p>
+        {% if kot.kot_items.all %}
+        <hr>
+        <h5>Items</h5>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in kot.kot_items.all %}
+            <tr>
+              <td>{{ item.menu_item.name }}</td>
+              <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+      <div class="card-footer text-end">
+        <a href="{% url 'restaurant:kot-list' %}" class="btn btn-light">Back to List</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

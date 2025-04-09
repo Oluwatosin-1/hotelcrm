@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  {% load static %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}" />
+  <title>{% block title %}Hotel C.R.M Login{% endblock %}</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/css/bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/feather.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/css/style.css' %}" />
+</head>
+<body>
+  <div class="main-wrapper login-body">
+    <div class="container-fluid px-0">
+      <div class="row">
+        <!-- Left Column: Image -->
+        <div class="col-lg-6 login-wrap">
+          <div class="login-sec">
+            <div class="log-img">
+              <img class="img-fluid" src="{% static 'assets/img/login-02.png' %}" alt="Logo" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Form -->
+        <div class="col-lg-6 login-wrap-bg">
+          <div class="login-wrapper">
+            <div class="loginbox">
+              <div class="login-right">
+                <div class="login-right-wrap">
+                  <div class="account-logo">
+                    <a href="#">
+                      <img src="{% static 'assets/img/login-logo.png' %}" width="40%" height="8%" alt="Logo" />
+                    </a>
+                  </div>
+                  <h2>Login</h2>
+
+                  <!-- Alert Messages -->
+                  {% if messages %}
+                    {% for message in messages %}
+                      <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+
+                  <!-- Login Form using Django's form fields -->
+                  <form method="POST" action="">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    <!-- Username Field -->
+                    <div class="input-block">
+                      <label for="{{ form.username.id_for_label }}">
+                        Username <span class="login-danger">*</span>
+                      </label>
+                      {{ form.username.errors }}
+                      {{ form.username }}
+                      <!-- The above renders <input name="username" id="username" placeholder="Username" ...> -->
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="input-block">
+                      <label for="{{ form.password.id_for_label }}">
+                        Password <span class="login-danger">*</span>
+                      </label>
+                      {{ form.password.errors }}
+                      {{ form.password }}
+                      <!-- This will have id="password" and placeholder="Password" -->
+                      <span class="profile-views feather-eye-off toggle-password"></span>
+                    </div>
+
+                    <div class="forgotpass">
+                      <div class="remember-me">
+                        <label class="custom_check mr-2 mb-0 d-inline-flex remember-me">
+                          Remember me
+                          <input type="checkbox" name="remember_me" />
+                          <span class="checkmark"></span>
+                        </label>
+                      </div>
+                      <a href="{% url 'accounts:password_reset' %}">Forgot Password?</a>
+                    </div>
+
+                    <div class="input-block login-btn">
+                      <button type="submit" class="btn btn-primary">Sign in</button>
+                    </div>
+                  </form>
+
+                  <div class="next-sign">
+                    <p class="account-subtitle">
+                      Need an account? <a href="{% url 'accounts:signup' %}">Sign Up</a>
+                    </p>
+                    <div class="social-login">
+                      <a href="javascript:;">
+                        <img src="{% static 'assets/img/icons/login-icon-01.svg' %}" alt="Icon" />
+                      </a>
+                      <a href="javascript:;">
+                        <img src="{% static 'assets/img/icons/login-icon-02.svg' %}" alt="Icon" />
+                      </a>
+                      <a href="javascript:;">
+                        <img src="{% static 'assets/img/icons/login-icon-03.svg' %}" alt="Icon" />
+                      </a>
+                    </div>
+                  </div>
+                  <!-- End next-sign -->
+                </div> <!-- End login-right-wrap -->
+              </div> <!-- End login-right -->
+            </div> <!-- End loginbox -->
+          </div> <!-- End login-wrapper -->
+        </div> <!-- End col-lg-6 -->
+
+      </div> <!-- End row -->
+    </div> <!-- End container-fluid -->
+  </div> <!-- End main-wrapper login-body -->
+
+  {% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,199 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="page-header">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="doctors.html">Doctors</a>
+            </li>
+            <li class="breadcrumb-item">
+              <i class="feather-chevron-right"></i>
+            </li>
+            <li class="breadcrumb-item active">Add Doctor</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-heading">
+                    <h4>Doctor Details</h4>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>First Name <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="first_name" placeholder="First Name" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>Last Name <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="last_name" placeholder="Last Name" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>User Name <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="username" placeholder="User Name" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Mobile <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="mobile" placeholder="Mobile" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Email <span class="login-danger">*</span></label>
+                    <input class="form-control" type="email" name="email" placeholder="Email" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Password <span class="login-danger">*</span></label>
+                    <input class="form-control" type="password" name="password" placeholder="Password" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Confirm Password <span class="login-danger">*</span></label>
+                    <input class="form-control" type="password" name="confirm_password" placeholder="Confirm Password" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms cal-icon">
+                    <label>Date Of Birth <span class="login-danger">*</span></label>
+                    <input class="form-control datetimepicker" type="text" name="date_of_birth" placeholder="Date Of Birth" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block select-gender">
+                    <label class="gen-label">Gender <span class="login-danger">*</span></label>
+                    <div class="form-check-inline">
+                      <label class="form-check-label">
+                        <input type="radio" name="gender" class="form-check-input mt-0" value="male" /> Male
+                      </label>
+                    </div>
+                    <div class="form-check-inline">
+                      <label class="form-check-label">
+                        <input type="radio" name="gender" class="form-check-input mt-0" value="female" /> Female
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>Education <span class="login-danger">*</span></label>
+                    <select class="form-control" name="education" required>
+                      <option value="">Select Education</option>
+                      <option value="high_school">High School</option>
+                      <option value="bachelor">Bachelor</option>
+                      <option value="master">Master</option>
+                      <option value="doctorate">Doctorate</option>
+                    </select>                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>Designation <span class="login-danger">*</span></label>
+                    <select class="form-control" name="designation" required>
+                      <option value="">Select Designation</option>
+                      <option value="doctor">Doctor</option> 
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>Specialty <span class="login-danger">*</span></label>
+                    <select class="form-control" name="specialty" required>
+                      <option value="">Select Specialty</option>
+                      <option value="orthopedics">Orthopedics</option>
+                      <option value="radiology">Radiology</option>
+                      <option value="dentist">Dentist</option>
+                      <option value="cardiologist">Cardiologist</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-12">
+                  <div class="input-block local-forms">
+                    <label>Address <span class="login-danger">*</span></label>
+                    <textarea class="form-control" rows="3" name="address" placeholder="Address" required></textarea>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label
+                      >City <span class="login-danger">*</span></label
+                    >
+                    <input class="form-control" type="text" name="city" placeholder="City" required />
+                 </div>
+                </div>  
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>Country <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="country" placeholder="Country" required />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>State/Province <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="state_province" placeholder="State" required />
+                  </div>
+                </div>
+                <div class="col-12 col-sm-12">
+                  <div class="input-block local-forms">
+                    <label>Start Biography <span class="login-danger">*</span></label>
+                    <textarea class="form-control" rows="3" name="start_biography" placeholder="Start Biography" required></textarea>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-top-form">
+                    <label class="local-top">Avatar <span class="login-danger">*</span></label>
+                    <div class="settings-btn upload-files-avator">
+                      <input type="file" accept="image/*" name="avatar" id="avatar" class="hide-input" onchange="handleFileSelect(event)">
+                      <label for="file" class="upload">Choose File</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3">
+                  <div class="input-block local-top-form">
+                    <div id="imagePreview" class="avatar-preview" style="background-color: #f0f0f0; width: 50px; height: 50px;"></div>
+                  </div>
+                </div>                
+                <div class="col-12 col-md-6 col-xl-5">
+                  <div class="input-block select-gender">                <label class="gen-label">Status <span class="login-danger">*</span></label>
+                    <div class="form-check-inline">
+                      <label class="form-check-label">
+                        <input type="radio" name="status" class="form-check-input mt-0" value="active" checked /> Active
+                      </label>
+                    </div>
+                    <div class="form-check-inline">
+                      <label class="form-check-label">
+                        <input type="radio" name="status" class="form-check-input mt-0" value="inactive" /> Inactive
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="doctor-submit text-end">
+                    <button type="submit" class="btn btn-primary submit-form me-2">Submit</button>
+                    <button type="reset" class="btn btn-primary cancel-form">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+   {% endblock %} 

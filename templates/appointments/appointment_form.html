@@ -1,0 +1,232 @@
+{% extends 'base.html' %} {% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="page-header">
+      <div class="row">
+        <div class="col-sm-12">
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="{% url 'appointment_form' %}">Appointments </a>
+            </li>
+            <li class="breadcrumb-item">
+              <i class="feather-chevron-right"></i>
+            </li>
+            <li class="breadcrumb-item active">Book Appointment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-heading">
+                    <h4>Patient Details</h4>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label
+                      >First Name <span class="login-danger">*</span></label
+                    >
+                    {% if user.is_patient %}
+                    <input
+                      class="form-control"
+                      type="text"
+                      value="{{ user.patient.first_name }}"
+                      disabled
+                    />
+                    {% else %}
+                    <select class="form-control" name="patient">
+                      <option>Select Patient</option>
+                      {% for patient in assigned_patients %}
+                      <option value="{{ patient.id }}">
+                        {{ patient.first_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>Last Name <span class="login-danger">*</span></label>
+                    {% if user.is_patient %}
+                    <input
+                      class="form-control"
+                      type="text"
+                      value="{{ user.patient.last_name }}"
+                      disabled
+                    />
+                    {% else %}
+                    <select class="form-control" name="patient">
+                      <option>Select Patient</option>
+                      {% for patient in assigned_patients %}
+                      <option value="{{ patient.id }}">
+                        {{ patient.last_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block select-gender">
+                    <label class="gen-label"
+                      >Gender <span class="login-danger">*</span></label
+                    >
+                    <div class="form-check-inline">
+                      <label class="form-check-label">
+                        <input
+                          type="radio"
+                          name="gender"
+                          class="form-check-input"
+                          value="male"
+                        />Male
+                      </label>
+                    </div>
+                    <div class="form-check-inline">
+                      <label class="form-check-label">
+                        <input
+                          type="radio"
+                          name="gender"
+                          class="form-check-input"
+                          value="female"
+                        />Female
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Mobile <span class="login-danger">*</span></label>
+                    <input class="form-control" type="text" name="mobile" />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Email <span class="login-danger">*</span></label>
+                    <input class="form-control" type="email" name="email" />
+                  </div>
+                </div>
+                <div class="col-12 col-sm-12">
+                  <div class="input-block local-forms">
+                    <label>Address <span class="login-danger">*</span></label>
+                    <textarea
+                      class="form-control"
+                      rows="3"
+                      cols="30"
+                      name="address"
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-heading">
+                    <h4>Appointment Details</h4>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms cal-icon">
+                    <label
+                      >Date of Appointment
+                      <span class="login-danger">*</span></label
+                    >
+                    <input
+                      class="form-control datetimepicker"
+                      type="text"
+                      name="appointment_date"
+                    />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>From <span class="login-danger">*</span></label>
+                    <div class="time-icon">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="datetimepicker3"
+                        name="from_time"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="input-block local-forms">
+                    <label>To <span class="login-danger">*</span></label>
+                    <div class="time-icon">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="datetimepicker4"
+                        name="to_time"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Consulting Doctor</label>
+                    <select class="form-control" name="doctor">
+                      <option>Select Doctor</option>
+                      {% for doctor in assigned_Staffs%}
+                      <option value="{{ doctor.id }}">{{ doctor.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Consulting Nurse</label>
+                    <select class="form-control" name="nurse">
+                      <option>Select Nurse</option>
+                      {% for nurse in assigned_nurses %}
+                      <option value="{{ nurse.id }}">{{ nurse.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-6">
+                  <div class="input-block local-forms">
+                    <label>Treatment </label>
+                    <input class="form-control" type="text" name="treatment" />
+                  </div>
+                </div>
+                <div class="col-12 col-sm-12">
+                  <div class="input-block local-forms">
+                    <label>Notes <span class="login-danger">*</span></label>
+                    <textarea
+                      class="form-control"
+                      rows="3"
+                      cols="30"
+                      name="notes"
+                    ></textarea>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="doctor-submit text-end">
+                    <button
+                      type="submit"
+                      class="btn btn-primary submit-form me-2"
+                    >
+                      Submit
+                    </button>
+                    <button type="reset" class="btn btn-primary cancel-form">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

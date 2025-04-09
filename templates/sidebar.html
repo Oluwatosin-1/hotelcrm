@@ -1,0 +1,175 @@
+{% load static %}
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-inner slimscroll">
+    <div id="sidebar-menu" class="sidebar-menu">
+
+      <!-- ── MAIN ─────────────────────────────────────────────── -->
+      <ul>
+        <li class="menu-title">Main</li>
+
+        <li>
+          <a href="{% url 'accounts:dashboard' %}">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-01.svg' %}" alt />
+            </span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+
+        <!-- ── ROOMS ──────────────────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-02.svg' %}" alt />
+            </span>
+            <span>Rooms</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'rooms:room-list' %}">Room List</a></li>
+            <li><a href="{% url 'rooms:room-create' %}">Add Room</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url 'rooms:category-list' %}">Categories</a></li>
+            <li><a href="{% url 'rooms:category-create' %}">Add Category</a></li>
+          </ul>
+        </li>
+
+        <!-- ── CUSTOMERS ──────────────────────────────────────── -->
+        <li>
+          <a href="{% url 'customers:customer-list' %}">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-16.svg' %}" alt />
+            </span>
+            <span>Customers</span>
+          </a>
+        </li>
+
+        <!-- ── STAFF / USERS ──────────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-03.svg' %}" alt />
+            </span>
+            <span>Staff</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'accounts:staff-list' %}">Staff List</a></li>
+            <li><a href="{% url 'accounts:staff-create' %}">Add Staff</a></li>
+          </ul>
+        </li>
+
+        <!-- ── RESERVATIONS ───────────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-08.svg' %}" alt />
+            </span>
+            <span>Reservations</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'reservations:reservation-list' %}">Reservation List</a></li>
+            <li><a href="{% url 'reservations:reservation-create' %}">Add Reservation</a></li>
+          </ul>
+        </li>
+
+        <!-- ── RESTAURANT / MENU ──────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-04.svg' %}" alt />
+            </span>
+            <span>Restaurant</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'restaurant:item-list' %}">Menu Items</a></li>
+            <li><a href="{% url 'restaurant:item-create' %}">Add Menu Item</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url 'restaurant:category-list' %}">Menu Categories</a></li>
+            <li><a href="{% url 'restaurant:category-create' %}">Add Category</a></li>
+          </ul>
+        </li>
+
+        <!-- ── BILLING / INVOICES ─────────────────────────────── -->
+        <li>
+          <a href="{% url 'billing:invoice-list' %}">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-05.svg' %}" alt />
+            </span>
+            <span>Invoices</span>
+          </a>
+        </li>
+
+        <!-- ── REPORTS ────────────────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-06.svg' %}" alt />
+            </span>
+            <span>Reports</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'reports:daily-sales' %}">Daily Sales</a></li>
+            <li><a href="{% url 'reports:police-report' %}">Police Report</a></li>
+            <li><a href="{% url 'reports:general-report' %}">General Report</a></li>
+            <li><a href="{% url 'reports:kot-report' %}">KOT Report</a></li>
+          </ul>
+        </li>
+
+        <!-- ── EXPENSES ───────────────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-07.svg' %}" alt />
+            </span>
+            <span>Expenses</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'expenses:expense-list' %}">Expense List</a></li>
+            <li><a href="{% url 'expenses:expense-create' %}">Add Expense</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url 'expenses:category-list' %}">Expense Categories</a></li>
+            <li><a href="{% url 'expenses:category-create' %}">Add Category</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url 'expenses:subcategory-list' %}">Expense Subcategories</a></li>
+            <li><a href="{% url 'expenses:subcategory-create' %}">Add Subcategory</a></li>
+          </ul>
+        </li>
+
+        <!-- ── HOUSEKEEPING ─────────────────────────────────────── -->
+        <li class="submenu">
+          <a href="#">
+            <span class="menu-side">
+              <img src="{% static 'assets/img/icons/menu-icon-09.svg' %}" alt />
+            </span>
+            <span>Housekeeping</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <ul style="display: none">
+            <li><a href="{% url 'housekeeping:laundry-list' %}">Laundry</a></li>
+            <li><a href="{% url 'housekeeping:laundry-create' %}">Add Laundry</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url 'housekeeping:complaint-list' %}">Complaints</a></li>
+            <li><a href="{% url 'housekeeping:complaint-create' %}">Add Complaint</a></li>
+          </ul>
+        </li>
+
+      </ul>
+
+      <!-- ── LOGOUT ──────────────────────────────────────────── -->
+      <div class="logout-btn">
+        <a href="{% url 'accounts:logout' %}">
+          <span class="menu-side">
+            <img src="{% static 'assets/img/icons/logout.svg' %}" alt />
+          </span>
+          <span>Logout</span>
+        </a>
+      </div>
+
+    </div><!-- /sidebar-menu -->
+  </div><!-- /sidebar-inner -->
+</div><!-- /sidebar -->

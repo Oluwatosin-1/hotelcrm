@@ -1,0 +1,116 @@
+<!-- templates/accounts/signup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  {% load static %}
+  {% load crispy_forms_tags %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}" />
+  <title>{% block title %}Hotel C.R.M Signup{% endblock %}</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/css/bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/feather.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/css/style.css' %}" />
+</head>
+<body>
+  <div class="main-wrapper login-body">
+    <div class="container-fluid px-0">
+      <div class="row">
+        
+        <!-- Left Column: Image -->
+        <div class="col-lg-6 login-wrap">
+          <div class="login-sec">
+            <div class="log-img">
+              <img class="img-fluid" src="{% static 'assets/img/login-02.png' %}" alt="Signup Image" />
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column: Form -->
+        <div class="col-lg-6 login-wrap-bg">
+          <div class="login-wrapper">
+            <div class="loginbox">
+              <div class="login-right">
+                <div class="login-right-wrap">
+                  
+                  <div class="account-logo">
+                    <a href="#">
+                      <img src="{% static 'assets/img/login-logo.png' %}" width="40%" height="8%" alt="Hotel CRM Logo" />
+                    </a>
+                  </div>
+                  <h2>Sign Up</h2>
+
+                  <!-- Alert/Flash Messages -->
+                  {% if messages %}
+                    {% for message in messages %}
+                      <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+
+                  <!-- Crispified Django Form -->
+                  <form method="POST" action="{% url 'accounts:signup' %}">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+
+                    <!-- Terms & Conditions Checkbox (if needed) -->
+                    <div class="forgotpass">
+                      <div class="remember-me">
+                        <label class="custom_check mr-2 mb-0 d-inline-flex remember-me">
+                          I agree to the 
+                          <a href="javascript:;">terms of service</a> 
+                          and 
+                          <a href="javascript:;">privacy policy</a>
+                          <input type="checkbox" name="agree_terms" required />
+                          <span class="checkmark"></span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="input-block login-btn">
+                      <button class="btn btn-primary btn-block" type="submit">Sign Up</button>
+                    </div>
+                  </form>
+
+                  <div class="next-sign">
+                    <p class="account-subtitle">
+                      Already have an account? 
+                      <a href="{% url 'accounts:signin' %}">Sign In</a>
+                    </p>
+                    <div class="social-login">
+                      <a href="javascript:;">
+                        <img src="{% static 'assets/img/icons/login-icon-01.svg' %}" alt="Social1" />
+                      </a>
+                      <a href="javascript:;">
+                        <img src="{% static 'assets/img/icons/login-icon-02.svg' %}" alt="Social2" />
+                      </a>
+                      <a href="javascript:;">
+                        <img src="{% static 'assets/img/icons/login-icon-03.svg' %}" alt="Social3" />
+                      </a>
+                    </div>
+                  </div>
+                  <!-- End next-sign -->
+                </div> <!-- End login-right-wrap -->
+              </div> <!-- End login-right -->
+            </div> <!-- End loginbox -->
+          </div> <!-- End login-wrapper -->
+        </div> <!-- End col-lg-6 -->
+      </div> <!-- End row -->
+    </div> <!-- End container-fluid -->
+  </div> <!-- End main-wrapper login-body -->
+  
+  {% include 'footer.html' %}
+
+  <!-- JS -->
+  <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+  <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/js/feather.min.js' %}"></script>
+  <script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>

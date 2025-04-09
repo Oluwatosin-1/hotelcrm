@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static query_transform %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col-md-4 col-12">
+          <h3 class="page-title mb-0">
+            Customers <span class="badge bg-primary">{{ page_obj.paginator.count }}</span>
+          </h3>
+        </div>
+
+        <!-- Filter & Search -->
+        <div class="col-md-8 col-12 text-md-end mt-3 mt-md-0">
+          <form class="row gx-2 gy-1 align-items-center justify-content-md-end" method="get">
+            <!-- ID‑Type filter -->
+            <div class="col-auto">
+              <select name="id_type" class="form-select">
+                <option value="">All ID Types</option>
+                {% for key, label in customer_id_types %}
+                  <option value="{{ key }}" {% if request.GET.id_type == key %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Search box -->
+            <div class="col-auto">
+              <input type="text"
+                     name="q"
+                     value="{{ request.GET.q }}"
+                     class="form-control"
+                     placeholder="Search name / phone / email">
+            </div>
+
+            <div class="col-auto">
+              <button class="btn btn-outline-primary" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+
+            <!-- Add button -->
+            <div class="col-auto">
+              <a href="{% url 'customers:customer-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> New
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div><!-- /page‑header -->
+
+    <!-- Customer table -->
+    <div class="card shadow-sm">
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-nowrap">
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>ID Type</th>
+              <th>ID Number</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for customer in page_obj %}
+              <tr>
+                <td>{{ customer.full_name }}</td>
+                <td>{{ customer.phone|default:"—" }}</td>
+                <td>{{ customer.email|default:"—" }}</td>
+                <td>{{ customer.address|default:"—"|truncatechars:40 }}</td>
+                <td>
+                  {% if customer.id_card_type %}
+                    <span class="badge bg-info text-dark">{{ customer.get_id_card_type_display }}</span>
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>{{ customer.id_card_number|default:"—" }}</td>
+                <td class="text-end">
+                  <a href="{% url 'customers:customer-detail' customer.pk %}"
+                     class="btn btn-sm btn-light"
+                     title="View">
+                    <i class="far fa-eye"></i>
+                  </a>
+                  <a href="{% url 'customers:customer-edit' customer.pk %}"
+                     class="btn btn-sm btn-light"
+                     title="Edit">
+                    <i class="far fa-edit"></i>
+                  </a>
+                  <a href="{% url 'customers:customer-delete' customer.pk %}"
+                     class="btn btn-sm btn-light text-danger"
+                     title="Delete">
+                    <i class="far fa-trash-alt"></i>
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-4">No customers found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+        <div class="card-footer py-2">
+          <nav>
+            <ul class="pagination justify-content-end mb-0">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?{% query_transform page=page_obj.previous_page_number %}">&laquo;</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                  <li class="page-item">
+                    <a class="page-link" href="?{% query_transform page=num %}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?{% query_transform page=page_obj.next_page_number %}">&raquo;</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /page‑wrapper -->
+{% endblock %}

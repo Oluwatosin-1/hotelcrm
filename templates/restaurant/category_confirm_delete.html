@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h4 class="mb-0">Delete Category</h4>
+      </div>
+      <div class="card-body">
+        <p>Are you sure you want to delete the category "{{ object.name }}"?</p>
+        <form method="post">
+          {% csrf_token %}
+          <div class="text-end">
+            <a href="{% url 'restaurant:category-list' %}" class="btn btn-light">Cancel</a>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

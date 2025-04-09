@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h4 class="card-title mb-0">
+          {% if object %}Edit{% else %}Add{% endif %} Customer
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <!-- enctype only needed if you later add file/image fields -->
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <!-- 1 ▸ Names ----------------------------------------------------- -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.first_name|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.last_name|as_crispy_field }}
+            </div>
+          </div>
+
+          <!-- 2 ▸ Gender + DOB --------------------------------------------- -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.gender|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.date_of_birth|as_crispy_field }}
+            </div>
+          </div>
+
+          <!-- 3 ▸ Email + Phone -------------------------------------------- -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.email|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.phone|as_crispy_field }}
+            </div>
+          </div>
+
+          <!-- 4 ▸ Address (full width) ------------------------------------- -->
+          <div class="row g-3">
+            <div class="col-12">
+              {{ form.address|as_crispy_field }}
+            </div>
+          </div>
+
+          <!-- 5 ▸ ID‑card fields ------------------------------------------- -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              {{ form.id_card_type|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.id_card_number|as_crispy_field }}
+            </div>
+          </div>
+
+          <!-- 6 ▸ Notes (full width) --------------------------------------- -->
+          <div class="row g-3">
+            <div class="col-12">
+              {{ form.notes|as_crispy_field }}
+            </div>
+          </div>
+
+          <!-- Actions ------------------------------------------------------- -->
+          <div class="text-end mt-4">
+            <a href="{% url 'customers:customer-list' %}" class="btn btn-light">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /page‑wrapper -->
+{% endblock %}

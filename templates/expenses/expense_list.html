@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4>Expenses</h4>
+      <a href="{% url 'expenses:expense-create' %}" class="btn btn-primary">Add Expense</a>
+    </div>
+    <div class="card-body">
+      <!-- Optional filter form -->
+      <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+          <input type="date" name="date_from" class="form-control" placeholder="From date" value="{{ request.GET.date_from }}">
+        </div>
+        <div class="col-md-3">
+          <input type="date" name="date_to" class="form-control" placeholder="To date" value="{{ request.GET.date_to }}">
+        </div>
+        <div class="col-md-3">
+          <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-secondary w-100">Filter</button>
+        </div>
+      </form>
+      {% if expenses %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Payment Method</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for expense in expenses %}
+            <tr>
+              <td>{{ expense.pk }}</td>
+              <td>{{ expense.description }}</td>
+              <td>₦{{ expense.amount }}</td>
+              <td>{{ expense.date|date:"Y-m-d H:i" }}</td>
+              <td>
+                {% if expense.category %}
+                  {{ expense.category.name }}
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+              <td>{{ expense.payment_method|default:"N/A" }}</td>
+              <td class="text-center">
+                <a href="{{ expense.get_absolute_url }}" class="btn btn-sm btn-info">View</a>
+                <a href="{% url 'expenses:expense-update' expense.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'expenses:expense-delete' expense.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-center">No expenses found.</p>
+      {% endif %}
+    </div>
+    {% if is_paginated %}
+    <div class="card-footer">
+      <nav>
+        <ul class="pagination justify-content-center mb-0">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Previous</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Previous</span></li>
+          {% endif %}
+          <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Next</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

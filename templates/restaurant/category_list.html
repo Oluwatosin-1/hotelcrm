@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <h4 class="mb-0">Menu Categories</h4>
+        <a href="{% url 'restaurant:category-create' %}" class="btn btn-primary float-end">Add New Category</a>
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for category in categories %}
+            <tr>
+              <td>{{ category.name }}</td>
+              <td>{{ category.description }}</td>
+              <td>
+                <a href="{% url 'restaurant:category-update' category.id %}" class="btn btn-sm btn-info">Edit</a>
+                <a href="{% url 'restaurant:category-delete' category.id %}" class="btn btn-sm btn-danger">Delete</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No categories available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

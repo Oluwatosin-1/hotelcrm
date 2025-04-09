@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+
+    <!-- Card Wrapper -->
+    <div class="card shadow-sm">
+      <!-- Header with Edit/Delete buttons -->
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Customer Details</h4>
+        <div>
+          <a href="{% url 'customers:customer-edit' customer.pk %}" class="btn btn-sm btn-primary">
+            <i class="far fa-edit me-1"></i>Edit
+          </a>
+          <a href="{% url 'customers:customer-delete' customer.pk %}" class="btn btn-sm btn-danger">
+            <i class="far fa-trash-alt me-1"></i>Delete
+          </a>
+        </div>
+      </div>
+
+      <!-- Body with a 2-col layout -->
+      <div class="card-body">
+        <div class="row g-3">
+          <!-- Left Column -->
+          <div class="col-md-6">
+            <dl class="row mb-0">
+              <!-- Name -->
+              <dt class="col-sm-4">Name</dt>
+              <dd class="col-sm-8">
+                {{ customer.first_name|default:"" }} {{ customer.last_name|default:"" }}
+              </dd>
+
+              <!-- Email -->
+              <dt class="col-sm-4">Email</dt>
+              <dd class="col-sm-8">
+                {{ customer.email|default:"—" }}
+              </dd>
+
+              <!-- Phone -->
+              <dt class="col-sm-4">Phone</dt>
+              <dd class="col-sm-8">
+                {{ customer.phone|default:"—" }}
+              </dd>
+
+              <!-- Gender -->
+              <dt class="col-sm-4">Gender</dt>
+              <dd class="col-sm-8">
+                {% if customer.gender %}
+                  {{ customer.gender|title }}
+                {% else %}
+                  —
+                {% endif %}
+              </dd>
+            </dl>
+          </div><!-- /col-md-6 -->
+
+          <!-- Right Column -->
+          <div class="col-md-6">
+            <dl class="row mb-0">
+              <!-- DOB -->
+              <dt class="col-sm-4">Date of Birth</dt>
+              <dd class="col-sm-8">
+                {% if customer.date_of_birth %}
+                  {{ customer.date_of_birth|date:"M j, Y" }}
+                {% else %}
+                  —
+                {% endif %}
+              </dd>
+
+              <!-- ID Type -->
+              <dt class="col-sm-4">ID Type</dt>
+              <dd class="col-sm-8">
+                {% if customer.id_card_type %}
+                  {{ customer.get_id_card_type_display }}
+                {% else %}
+                  —
+                {% endif %}
+              </dd>
+
+              <!-- ID Number -->
+              <dt class="col-sm-4">ID Number</dt>
+              <dd class="col-sm-8">
+                {{ customer.id_card_number|default:"—" }}
+              </dd>
+            </dl>
+          </div><!-- /col-md-6 -->
+        </div><!-- /row -->
+
+        <!-- Horizontal rule before Address & Notes -->
+        <hr class="my-3">
+
+        <dl class="row mb-0">
+          <!-- Address -->
+          <dt class="col-sm-2">Address</dt>
+          <dd class="col-sm-10">
+            {{ customer.address|default:"—" }}
+          </dd>
+
+          <!-- Notes -->
+          <dt class="col-sm-2">Notes</dt>
+          <dd class="col-sm-10">
+            {{ customer.notes|default:"—" }}
+          </dd>
+        </dl>
+      </div><!-- /card-body -->
+    </div><!-- /card -->
+  </div><!-- /content -->
+</div><!-- /page-wrapper -->
+{% endblock %}

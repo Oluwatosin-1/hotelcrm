@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %} 
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4>Expense Subcategories</h4>
+      <a href="{% url 'expenses:subcategory-create' %}" class="btn btn-primary">Add Subcategory</a>
+    </div>
+    <div class="card-body">
+      {% if subcategories %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Category</th>
+              <th>Subcategory</th>
+              <th>Description</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for subcat in subcategories %}
+            <tr>
+              <td>{{ subcat.category.name }}</td>
+              <td>{{ subcat.name }}</td>
+              <td>{{ subcat.description }}</td>
+              <td class="text-center">
+                <a href="{% url 'expenses:subcategory-update' subcat.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'expenses:subcategory-delete' subcat.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-center">No subcategories found.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
