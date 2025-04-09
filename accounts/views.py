@@ -17,6 +17,7 @@ from .models             import User, Staff
 from .forms              import LoginForm, StaffEditForm, StaffUserCreationForm, UserSignUpForm  
 
 # ─────────────────────────────────────────────────────────────
+
 class DashboardView(TemplateView):
     template_name = "dashboard/index.html"
 

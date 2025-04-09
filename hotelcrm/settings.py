@@ -82,10 +82,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hotelcrm.wsgi.application'
 
 AUTH_USER_MODEL = 'accounts.User' 
-LOGIN_URL = 'accounts:signin'  # If a user tries to access a protected page, they get sent here
-# LOGIN_REDIRECT_URL = 'accounts:staff-list'  # or your choice
-LOGOUT_REDIRECT_URL = 'accounts:signin'
-LOGIN_REDIRECT_URL = '/accounts/staff/'
+ # settings.py
+LOGIN_REDIRECT_URL = 'accounts:dashboard'  # After login, go to dashboard
+LOGOUT_REDIRECT_URL = 'accounts:signin'    # After logout, go to signin page
+LOGIN_URL = 'accounts:signin'              # Redirect here if login is required
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"  # or whichever you’re using
 CRISPY_TEMPLATE_PACK = "bootstrap5"
