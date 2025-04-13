@@ -15,21 +15,16 @@
 
         <div class="card-body">
 
-          {# ─── Main reservation fields (via Crispy) ─── #}
+          {# ───────── ENTIRE FORM (Crispy) ───────── #}
           {% crispy form %}
 
-          {# ─── Menu items inline formset ─── #}
+          {# ───────── MENU ITEMS FORMSET ───────── #}
           <hr>
           <h5 class="fw-semibold">Food / Menu Items</h5>
           {{ item_formset.management_form }}
           <table class="table table-sm align-middle">
             <thead class="table-light">
-              <tr>
-                <th>Item</th>
-                <th class="text-end">Qty</th>
-                <th class="text-end">Unit</th>
-                <th></th>
-              </tr>
+              <tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th></th></tr>
             </thead>
             <tbody id="menu-items">
               {% for f in item_formset %}
@@ -37,11 +32,7 @@
                   <td>{{ f.menu_item }}</td>
                   <td class="text-end">{{ f.quantity }}</td>
                   <td class="text-end">{{ f.unit_price }}</td>
-                  <td>
-                    {% if f.instance.pk %}
-                      {{ f.DELETE }} Remove
-                    {% endif %}
-                  </td>
+                  <td>{% if f.instance.pk %}{{ f.DELETE }} Remove{% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -50,28 +41,20 @@
             <i class="fas fa-plus"></i> Add item
           </button>
 
-          {# ─── Misc charges inline formset ─── #}
+          {# ───────── MISC FORMSET ───────── #}
           <hr>
           <h5 class="fw-semibold">Miscellaneous Charges</h5>
           {{ misc_formset.management_form }}
           <table class="table table-sm align-middle">
             <thead class="table-light">
-              <tr>
-                <th>Description</th>
-                <th class="text-end">Amount</th>
-                <th></th>
-              </tr>
+              <tr><th>Description</th><th class="text-end">Amount</th><th></th></tr>
             </thead>
             <tbody id="misc-items">
               {% for f in misc_formset %}
                 <tr class="form-row">
                   <td>{{ f.description }}</td>
                   <td class="text-end">{{ f.amount }}</td>
-                  <td>
-                    {% if f.instance.pk %}
-                      {{ f.DELETE }} Remove
-                    {% endif %}
-                  </td>
+                  <td>{% if f.instance.pk %}{{ f.DELETE }} Remove{% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -92,24 +75,33 @@
   </div>
 </div>
 
-{# ─── Quick JS to add new rows in the formset ─── #}
+{# ───────── JS helpers ───────── #}
 <script>
+/* ---------- inline‑formset row duplicator ---------- */
 function cloneBlankRow(prefix, tbodyId) {
-  const tbody     = document.getElementById(tbodyId);
-  const total     = document.querySelector(`input[name='${prefix}-TOTAL_FORMS']`);
-  const newIndex  = parseInt(total.value);
-  const emptyRow  = tbody.querySelector(".form-row").cloneNode(true);
+  const tbody = document.getElementById(tbodyId);
+  const total = document.querySelector(`input[name='${prefix}-TOTAL_FORMS']`);
+  const newIndex = parseInt(total.value, 10);
+  const blankRow = tbody.querySelector(".form-row").cloneNode(true);
 
-  // Replace __prefix__ with newIndex in the cloned row’s inputs
-  emptyRow.innerHTML = emptyRow.innerHTML.replace(/__prefix__/g, newIndex);
-  tbody.appendChild(emptyRow);
+  blankRow.innerHTML = blankRow.innerHTML.replace(/__prefix__/g, newIndex);
+  tbody.appendChild(blankRow);
   total.value = newIndex + 1;
 }
-
 document.getElementById("add-item").onclick = () =>
   cloneBlankRow("reservationitem_set", "menu-items");
-
 document.getElementById("add-misc").onclick = () =>
   cloneBlankRow("misccharge_set", "misc-items");
+
+/* ---------- new‑customer toggle (d-none) ---------- */
+(() => {
+  const cb   = document.getElementById("id_new_customer");
+  const pane = document.getElementById("new-customer-fields");
+  function toggle() {
+    pane.classList.toggle("d-none", !cb.checked);
+  }
+  toggle();                 // initial
+  cb.addEventListener("change", toggle);
+})();
 </script>
 {% endblock %}

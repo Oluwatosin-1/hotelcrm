@@ -1,175 +1,266 @@
 {% load static %}
+{% load static extras %}
+
 <div class="sidebar" id="sidebar">
   <div class="sidebar-inner slimscroll">
     <div id="sidebar-menu" class="sidebar-menu">
-
-      <!-- ── MAIN ─────────────────────────────────────────────── -->
       <ul>
         <li class="menu-title">Main</li>
 
-        <li>
-          <a href="{% url 'accounts:dashboard' %}">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-01.svg' %}" alt />
-            </span>
+        {# ───────── DASHBOARD ───────── #}
+        {% url 'accounts:dashboard' as dash %}
+        <li class="{% if request.path == dash %}active{% endif %}">
+          <a href="{{ dash }}">
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-01.svg' %}" alt=""></span>
             <span>Dashboard</span>
           </a>
         </li>
-
-        <!-- ── ROOMS ──────────────────────────────────────────── -->
-        <li class="submenu">
+        {# ───────── ADMINISTRATION ───────── #} 
+        {% if perms.auth.change_group or perms.auth.change_user %}
+        <li class="submenu {% if request.resolver_match.url_name and 'permission' in request.resolver_match.url_name %}active{% endif %}">
           <a href="#">
             <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-02.svg' %}" alt />
+              <img src="{% static 'assets/img/icons/menu-icon-13.svg' %}" alt="">
             </span>
-            <span>Rooms</span>
-            <span class="menu-arrow"></span>
+            <span>Administration</span><span class="menu-arrow"></span>
           </a>
-          <ul style="display: none">
-            <li><a href="{% url 'rooms:room-list' %}">Room List</a></li>
-            <li><a href="{% url 'rooms:room-create' %}">Add Room</a></li>
+          <ul>
+            {% if perms.auth.change_group %}
+              {% url 'accounts:group-permissions-list' as group_perms %}
+              <li><a href="{{ group_perms }}" class="{% if request.path == group_perms %}active{% endif %}">Group Permissions</a></li>
+            {% endif %}
+
+            {% if perms.auth.change_user %}
+              {% url 'accounts:user-permissions-list' as user_perms %}
+              <li><a href="{{ user_perms }}" class="{% if request.path == user_perms %}active{% endif %}">User Permissions</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        {% endif %}
+
+        {# ───────── ROOMS ───────────── #}
+        {% if perms.rooms.view_room %}
+          {% url 'rooms:room-list' as room_list %}
+          <li class="submenu {% if request.path|startswith:room_list %}active{% endif %}">
+            <a href="#">
+              <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-02.svg' %}" alt=""></span>
+              <span>Rooms</span><span class="menu-arrow"></span>
+            </a>
+            <ul>
+              <li><a href="{{ room_list }}" class="{% if request.path == room_list %}active{% endif %}">Room List</a></li>
+
+              {% if perms.rooms.add_room %}
+                {% url 'rooms:room-create' as room_create %}
+                <li><a href="{{ room_create }}" class="{% if request.path == room_create %}active{% endif %}">Add Room</a></li>
+              {% endif %}
+
+              {% if perms.rooms.view_roomcategory or perms.rooms.add_roomcategory %}
+                <li class="divider"></li>
+              {% endif %}
+
+              {% if perms.rooms.view_roomcategory %}
+                {% url 'rooms:category-list' as cat_list %}
+                <li><a href="{{ cat_list }}" class="{% if request.path == cat_list %}active{% endif %}">Categories</a></li>
+              {% endif %}
+
+              {% if perms.rooms.add_roomcategory %}
+                {% url 'rooms:category-create' as cat_create %}
+                <li><a href="{{ cat_create }}" class="{% if request.path == cat_create %}active{% endif %}">Add Category</a></li>
+              {% endif %}
+            </ul>
+          </li>
+          {% endif %}
+
+
+        {# ───────── CUSTOMERS ───────── #}
+        {% if perms.customers.view_customer %}
+          {% url 'customers:customer-list' as cust_list %}
+          <li class="{% if request.path == cust_list %}active{% endif %}">
+            <a href="{{ cust_list }}">
+              <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-16.svg' %}" alt=""></span>
+              <span>Customers</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {# ───────── STAFF ───────────── #}
+        {% if perms.accounts.view_staff %}
+        <li class="submenu {% if request.resolver_match.url_name|default:''|startswith:'staff' %}active{% endif %}">
+          <a href="#">
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-03.svg' %}" alt=""></span>
+            <span>Staff</span><span class="menu-arrow"></span>
+          </a>
+          <ul>
+            {% url 'accounts:staff-list' as staff_list %}
+            <li><a href="{{ staff_list }}" class="{% if request.path == staff_list %}active{% endif %}">Staff List</a></li>
+
+            {% if perms.accounts.add_staff %}
+              {% url 'accounts:staff-create' as staff_create %}
+              <li><a href="{{ staff_create }}" class="{% if request.path == staff_create %}active{% endif %}">Add Staff</a></li>
+            {% endif %}
+
+            {% if perms.accounts.change_staff %}
+              {% url 'accounts:staff-pending' as staff_pending %}
+              <li><a href="{{ staff_pending }}" class="{% if request.path == staff_pending %}active{% endif %}">Pending Review</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        {% endif %}
+
+        {# ───────── RESERVATIONS ────── #}
+        {% if perms.reservations.view_reservation %}
+        <li class="submenu {% if request.resolver_match.app_name == 'reservations' %}active{% endif %}">
+          <a href="#">
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-08.svg' %}" alt=""></span>
+            <span>Reservations</span><span class="menu-arrow"></span>
+          </a>
+          <ul>
+            {% url 'reservations:reservation-list' as res_list %}
+            <li><a href="{{ res_list }}" class="{% if request.path == res_list %}active{% endif %}">Reservation List</a></li>
+
+            {% if perms.reservations.add_reservation %}
+              {% url 'reservations:reservation-create' as res_create %}
+              <li><a href="{{ res_create }}" class="{% if request.path == res_create %}active{% endif %}">Add Reservation</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        {% endif %}
+
+        {# ───────── RESTAURANT ──────── #}
+        {% if perms.restaurant.view_menuitem %}
+        <li class="submenu {% if request.resolver_match.app_name == 'restaurant' %}active{% endif %}">
+          <a href="#">
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-04.svg' %}" alt=""></span>
+            <span>Restaurant</span><span class="menu-arrow"></span>
+          </a>
+          <ul>
+            {% url 'restaurant:item-list' as item_list %}
+            <li><a href="{{ item_list }}" class="{% if request.path == item_list %}active{% endif %}">Menu Items</a></li>
+
+            {% if perms.restaurant.add_menuitem %}
+              {% url 'restaurant:item-create' as item_create %}
+              <li><a href="{{ item_create }}" class="{% if request.path == item_create %}active{% endif %}">Add Menu Item</a></li>
+            {% endif %}
+
             <li class="divider"></li>
-            <li><a href="{% url 'rooms:category-list' %}">Categories</a></li>
-            <li><a href="{% url 'rooms:category-create' %}">Add Category</a></li>
+
+            {% if perms.restaurant.view_menucategory %}
+              {% url 'restaurant:category-list' as mcat_list %}
+              <li><a href="{{ mcat_list }}" class="{% if request.path == mcat_list %}active{% endif %}">Menu Categories</a></li>
+            {% endif %}
+
+            {% if perms.restaurant.add_menucategory %}
+              {% url 'restaurant:category-create' as mcat_create %}
+              <li><a href="{{ mcat_create }}" class="{% if request.path == mcat_create %}active{% endif %}">Add Category</a></li>
+            {% endif %}
           </ul>
         </li>
+        {% endif %}
 
-        <!-- ── CUSTOMERS ──────────────────────────────────────── -->
-        <li>
-          <a href="{% url 'customers:customer-list' %}">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-16.svg' %}" alt />
-            </span>
-            <span>Customers</span>
-          </a>
-        </li>
+        {# ───────── INVOICES ────────── #}
+        {% if perms.billing.view_invoice %}
+          {% url 'billing:invoice-list' as inv_list %}
+          <li class="{% if request.path == inv_list %}active{% endif %}">
+            <a href="{{ inv_list }}">
+              <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-05.svg' %}" alt=""></span>
+              <span>Invoices</span>
+            </a>
+          </li>
+        {% endif %}
 
-        <!-- ── STAFF / USERS ──────────────────────────────────── -->
-        <li class="submenu">
+        {# ───────── REPORTS ─────────── #}
+        {% if perms.reports.view_report %}
+        <li class="submenu {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
           <a href="#">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-03.svg' %}" alt />
-            </span>
-            <span>Staff</span>
-            <span class="menu-arrow"></span>
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-06.svg' %}" alt=""></span>
+            <span>Reports</span><span class="menu-arrow"></span>
           </a>
-          <ul style="display: none">
-            <li><a href="{% url 'accounts:staff-list' %}">Staff List</a></li>
-            <li><a href="{% url 'accounts:staff-create' %}">Add Staff</a></li>
+          <ul>
+            {% url 'reports:daily-sales' as r_daily %}
+            <li><a href="{{ r_daily }}" class="{% if request.path == r_daily %}active{% endif %}">Daily Sales</a></li>
+
+            {% url 'reports:police-report' as r_police %}
+            <li><a href="{{ r_police }}" class="{% if request.path == r_police %}active{% endif %}">Police Report</a></li>
+
+            {% url 'reports:general-report' as r_general %}
+            <li><a href="{{ r_general }}" class="{% if request.path == r_general %}active{% endif %}">General Report</a></li>
+
+            {% url 'reports:kot-report' as r_kot %}
+            <li><a href="{{ r_kot }}" class="{% if request.path == r_kot %}active{% endif %}">KOT Report</a></li>
           </ul>
         </li>
+        {% endif %}
 
-        <!-- ── RESERVATIONS ───────────────────────────────────── -->
-        <li class="submenu">
+        {# ───────── EXPENSES ────────── #}
+        {% if perms.expenses.view_expense %}
+        <li class="submenu {% if request.resolver_match.app_name == 'expenses' %}active{% endif %}">
           <a href="#">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-08.svg' %}" alt />
-            </span>
-            <span>Reservations</span>
-            <span class="menu-arrow"></span>
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-07.svg' %}" alt=""></span>
+            <span>Expenses</span><span class="menu-arrow"></span>
           </a>
-          <ul style="display: none">
-            <li><a href="{% url 'reservations:reservation-list' %}">Reservation List</a></li>
-            <li><a href="{% url 'reservations:reservation-create' %}">Add Reservation</a></li>
-          </ul>
-        </li>
+          <ul>
+            {% url 'expenses:expense-list' as ex_list %}
+            <li><a href="{{ ex_list }}" class="{% if request.path == ex_list %}active{% endif %}">Expense List</a></li>
 
-        <!-- ── RESTAURANT / MENU ──────────────────────────────── -->
-        <li class="submenu">
-          <a href="#">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-04.svg' %}" alt />
-            </span>
-            <span>Restaurant</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <ul style="display: none">
-            <li><a href="{% url 'restaurant:item-list' %}">Menu Items</a></li>
-            <li><a href="{% url 'restaurant:item-create' %}">Add Menu Item</a></li>
+            {% if perms.expenses.add_expense %}
+              {% url 'expenses:expense-create' as ex_create %}
+              <li><a href="{{ ex_create }}" class="{% if request.path == ex_create %}active{% endif %}">Add Expense</a></li>
+            {% endif %}
+
             <li class="divider"></li>
-            <li><a href="{% url 'restaurant:category-list' %}">Menu Categories</a></li>
-            <li><a href="{% url 'restaurant:category-create' %}">Add Category</a></li>
+
+            {% if perms.expenses.view_expensecategory %}
+              {% url 'expenses:category-list' as ex_cat_list %}
+              <li><a href="{{ ex_cat_list }}" class="{% if request.path == ex_cat_list %}active{% endif %}">Expense Categories</a></li>
+            {% endif %}
+
+            {% if perms.expenses.add_expensecategory %}
+              {% url 'expenses:category-create' as ex_cat_create %}
+              <li><a href="{{ ex_cat_create }}" class="{% if request.path == ex_cat_create %}active{% endif %}">Add Category</a></li>
+            {% endif %}
           </ul>
         </li>
+        {% endif %}
 
-        <!-- ── BILLING / INVOICES ─────────────────────────────── -->
-        <li>
-          <a href="{% url 'billing:invoice-list' %}">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-05.svg' %}" alt />
-            </span>
-            <span>Invoices</span>
-          </a>
-        </li>
-
-        <!-- ── REPORTS ────────────────────────────────────────── -->
-        <li class="submenu">
+        {# ───────── HOUSEKEEPING ────── #}
+        {% if perms.housekeeping.view_laundry or perms.housekeeping.view_complaint %}
+        <li class="submenu {% if request.resolver_match.app_name == 'housekeeping' %}active{% endif %}">
           <a href="#">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-06.svg' %}" alt />
-            </span>
-            <span>Reports</span>
-            <span class="menu-arrow"></span>
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-09.svg' %}" alt=""></span>
+            <span>Housekeeping</span><span class="menu-arrow"></span>
           </a>
-          <ul style="display: none">
-            <li><a href="{% url 'reports:daily-sales' %}">Daily Sales</a></li>
-            <li><a href="{% url 'reports:police-report' %}">Police Report</a></li>
-            <li><a href="{% url 'reports:general-report' %}">General Report</a></li>
-            <li><a href="{% url 'reports:kot-report' %}">KOT Report</a></li>
+          <ul>
+            {% if perms.housekeeping.view_laundry %}
+              {% url 'housekeeping:laundry-list' as l_list %}
+              <li><a href="{{ l_list }}" class="{% if request.path == l_list %}active{% endif %}">Laundry</a></li>
+            {% endif %}
+            {% if perms.housekeeping.add_laundry %}
+              {% url 'housekeeping:laundry-create' as l_create %}
+              <li><a href="{{ l_create }}" class="{% if request.path == l_create %}active{% endif %}">Add Laundry</a></li>
+            {% endif %}
+
+            {% if perms.housekeeping.view_complaint %}
+              <li class="divider"></li>
+              {% url 'housekeeping:complaint-list' as c_list %}
+              <li><a href="{{ c_list }}" class="{% if request.path == c_list %}active{% endif %}">Complaints</a></li>
+            {% endif %}
+            {% if perms.housekeeping.add_complaint %}
+              {% url 'housekeeping:complaint-create' as c_create %}
+              <li><a href="{{ c_create }}" class="{% if request.path == c_create %}active{% endif %}">Add Complaint</a></li>
+            {% endif %}
           </ul>
         </li>
-
-        <!-- ── EXPENSES ───────────────────────────────────────── -->
-        <li class="submenu">
-          <a href="#">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-07.svg' %}" alt />
-            </span>
-            <span>Expenses</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <ul style="display: none">
-            <li><a href="{% url 'expenses:expense-list' %}">Expense List</a></li>
-            <li><a href="{% url 'expenses:expense-create' %}">Add Expense</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'expenses:category-list' %}">Expense Categories</a></li>
-            <li><a href="{% url 'expenses:category-create' %}">Add Category</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'expenses:subcategory-list' %}">Expense Subcategories</a></li>
-            <li><a href="{% url 'expenses:subcategory-create' %}">Add Subcategory</a></li>
-          </ul>
-        </li>
-
-        <!-- ── HOUSEKEEPING ─────────────────────────────────────── -->
-        <li class="submenu">
-          <a href="#">
-            <span class="menu-side">
-              <img src="{% static 'assets/img/icons/menu-icon-09.svg' %}" alt />
-            </span>
-            <span>Housekeeping</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <ul style="display: none">
-            <li><a href="{% url 'housekeeping:laundry-list' %}">Laundry</a></li>
-            <li><a href="{% url 'housekeeping:laundry-create' %}">Add Laundry</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'housekeeping:complaint-list' %}">Complaints</a></li>
-            <li><a href="{% url 'housekeeping:complaint-create' %}">Add Complaint</a></li>
-          </ul>
-        </li>
-
+        {% endif %}
       </ul>
 
-      <!-- ── LOGOUT ──────────────────────────────────────────── -->
+      {# ───────── LOGOUT ───────────── #}
+      {% url 'accounts:logout' as logout_url %}
       <div class="logout-btn">
-        <a href="{% url 'accounts:logout' %}">
-          <span class="menu-side">
-            <img src="{% static 'assets/img/icons/logout.svg' %}" alt />
-          </span>
+        <a href="{{ logout_url }}">
+          <span class="menu-side"><img src="{% static 'assets/img/icons/logout.svg' %}" alt=""></span>
           <span>Logout</span>
         </a>
       </div>
-
-    </div><!-- /sidebar-menu -->
-  </div><!-- /sidebar-inner -->
-</div><!-- /sidebar -->
+    </div>
+  </div>
+</div>

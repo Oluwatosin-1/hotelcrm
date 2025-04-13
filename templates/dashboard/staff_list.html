@@ -6,21 +6,29 @@
 
     <!-- Page header -->
     <div class="page-header row align-items-center">
-      <div class="col-md-4 col-12">
+      <div class="col-md-6">
         <h3 class="page-title mb-0">
           Staff Members
           <span class="badge bg-primary">{{ page_obj.paginator.count }}</span>
         </h3>
       </div>
 
-      <div class="col-md-8 col-12 text-md-end mt-3 mt-md-0">
+      <div class="col-md-6 text-md-end mt-3 mt-md-0">
         <form class="row gx-2 gy-1 justify-content-md-end" method="get">
           <div class="col-auto">
             <input type="text"
                    name="q"
                    value="{{ request.GET.q }}"
                    class="form-control"
-                   placeholder="Search name or role">
+                   placeholder="Search name, role, or department">
+          </div>
+          <div class="col-auto">
+            <select name="status" class="form-select">
+              <option value="">All Status</option>
+              {% for val, label in staff_status_choices %}
+                <option value="{{ val }}" {% if request.GET.status == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
           </div>
           <div class="col-auto">
             <button class="btn btn-outline-primary">
@@ -28,69 +36,70 @@
             </button>
           </div>
           <div class="col-auto">
-            <a href="{% url 'accounts:staff-create' %}" class="btn btn-primary">
-              <i class="fas fa-plus me-1"></i>New Staff
-            </a>
+            {% if perms.accounts.add_staff %}
+              <a href="{% url 'accounts:staff-create' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus me-1"></i> New Staff
+              </a>
+            {% endif %}
           </div>
         </form>
       </div>
-    </div><!-- /header -->
+    </div>
+    <!-- /Page header -->
 
     <!-- Staff table -->
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mt-3">
       <div class="card-body table-responsive p-0">
         <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
+          <thead class="table-light text-nowrap">
             <tr>
               <th>Name</th>
               <th>Role</th>
+              <th>Department</th>
               <th>Shift</th>
-              <th>Add</th>
-              <th>Edit</th>
-              <th>Delete</th>
+              <th>Status</th>
+              <th>Approved By</th>
               <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for staff in page_obj %}
               <tr>
-                <td>{{ staff.user.first_name }} {{ staff.user.last_name }}</td>
-                <td>{{ staff.role|default:"—" }}</td>
-                <td>{{ staff.current_shift|default:"—" }}</td>
-
+                <td>{{ staff.user.get_full_name }}</td>
+                <td>{{ staff.get_role_display }}</td>
+                <td>{{ staff.department|default:"—" }}</td>
+                <td>{{ staff.get_current_shift_display|default:"—" }}</td>
                 <td>
-                  {% if staff.can_add_room %}
-                    <i class="fas fa-check text-success"></i>
-                  {% else %}
-                    <i class="fas fa-times text-muted"></i>
-                  {% endif %}
+                  <span class="badge
+                    {% if staff.status == 'approved' %}bg-success
+                    {% elif staff.status == 'pending' %}bg-warning text-dark
+                    {% elif staff.status == 'rejected' %}bg-danger
+                    {% endif %}">
+                    {{ staff.get_status_display }}
+                  </span>
                 </td>
                 <td>
-                  {% if staff.can_edit_room %}
-                    <i class="fas fa-check text-success"></i>
+                  {% if staff.approved_by %}
+                    {{ staff.approved_by.get_full_name }}
                   {% else %}
-                    <i class="fas fa-times text-muted"></i>
+                    —
                   {% endif %}
                 </td>
-                <td>
-                  {% if staff.can_delete_room %}
-                    <i class="fas fa-check text-success"></i>
-                  {% else %}
-                    <i class="fas fa-times text-muted"></i>
-                  {% endif %}
-                </td>
-
                 <td class="text-end">
                   <a href="{% url 'accounts:staff-edit' staff.pk %}" class="btn btn-sm btn-light" title="Edit">
                     <i class="far fa-edit"></i>
                   </a>
-                  <a href="{% url 'accounts:staff-delete' staff.pk %}" class="btn btn-sm btn-light text-danger" title="Delete">
-                    <i class="far fa-trash-alt"></i>
-                  </a>
+                  {% if perms.accounts.delete_staff %}
+                    <a href="{% url 'accounts:staff-delete' staff.pk %}" class="btn btn-sm btn-light text-danger" title="Delete">
+                      <i class="far fa-trash-alt"></i>
+                    </a>
+                  {% endif %}
                 </td>
               </tr>
             {% empty %}
-              <tr><td colspan="7" class="text-center py-4">No staff members found.</td></tr>
+              <tr>
+                <td colspan="7" class="text-center py-4">No staff members found.</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -131,6 +140,7 @@
         </div>
       {% endif %}
     </div>
+    <!-- /Staff table -->
 
   </div><!-- /content -->
 </div><!-- /page-wrapper -->

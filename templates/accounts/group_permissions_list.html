@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <h4>Group Permissions</h4>
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Group</th>
+          <th>Permissions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in groups %}
+          <tr>
+            <td>{{ group.name }}</td>
+            <td>
+              <ul class="mb-0 small">
+                {% for perm in group.permissions.all %}
+                  <li>{{ perm.name }}</li>
+                {% empty %}
+                  <li><em>No permissions</em></li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td>
+              <a href="{% url 'accounts:group-permission-edit' group.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3">No groups found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

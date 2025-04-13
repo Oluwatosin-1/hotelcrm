@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+
+    <!-- Page Header -->
+    <div class="page-header row align-items-center">
+      <div class="col-md-8">
+        <h3 class="page-title mb-0">Review Staff Application</h3>
+        <p class="text-muted mb-0">
+          Review and take action on <strong>{{ object.full_name }}</strong>
+          ({{ object.get_role_display }})'s application.
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'accounts:staff-pending' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Back to Pending List
+        </a>
+      </div>
+    </div>
+    <!-- /Page Header -->
+
+    <!-- Review Form -->
+    <form method="post">
+      {% csrf_token %}
+      <div class="card shadow-sm mt-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Application Decision</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Status</label>
+              <div class="form-select-wrapper">
+                {{ form.status|as_crispy_field }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Is Active?</label>
+              <div class="form-check form-switch mt-2">
+                {{ form.is_active }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer text-end">
+          <button type="submit" class="btn btn-success px-4">
+            <i class="fas fa-check-circle me-1"></i> Submit Decision
+          </button>
+        </div>
+      </div>
+    </form>
+    <!-- /Review Form -->
+
+  </div>
+</div>
+{% endblock %}
