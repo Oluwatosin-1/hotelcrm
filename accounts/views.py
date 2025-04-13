@@ -1,4 +1,5 @@
 # accounts/views.py
+from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import (
@@ -7,6 +8,7 @@ from django.contrib.auth.mixins import (
 from django.utils.timezone import now
 from django.core.cache import cache
 from django.db.models import Count
+from django.db.models import Sum
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
@@ -16,13 +18,15 @@ from django.views.generic import (
     TemplateView, ListView, CreateView, UpdateView, DeleteView
 )
 
+from billing.models import Invoice
+from housekeeping.models import Laundry, ComplaintTicket
 from rooms.models        import Room
 from customers.models    import Customer
 from restaurant.models   import MenuItem
 from reservations.models import Reservation
 from .models             import User, Staff
 from .forms              import (
-    LoginForm, UserSignUpForm,
+    LoginForm, UserProfileForm, UserSignUpForm,
     StaffSignupForm,           #  new (self‑service)
     StaffUserCreationForm,     #  HR create‑approved
     StaffEditForm,             #  edit
@@ -89,40 +93,64 @@ class UserPermissionUpdateView(PermissionRequiredMixin, UpdateView):
         ctx = super().get_context_data(**kwargs)
         ctx["page_title"] = f"Edit Permissions for User: {self.object.get_full_name() or self.object.username}"
         return ctx
+ 
+class UserProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/user_profile.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Fetch the logged-in user
+        context['user'] = self.request.user
+        
+        # Fetch the staff profile if it exists
+        if hasattr(self.request.user, 'staff_profile'):
+            context['staff'] = self.request.user.staff_profile
+        
+        return context
+
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserProfileForm
+    template_name = 'accounts/user_profile_form.html'
+    success_url = reverse_lazy('accounts:user-profile')
+
+    def get_object(self):
+        return self.request.user
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['current_user'] = self.request.user  # Pass the current user so the form can decide on staff fields
+        return kwargs
 # ───────────────────────────────────────────────────────────────
 #  DASHBOARD
 # ───────────────────────────────────────────────────────────────
 
-class DashboardView(LoginRequiredMixin,
-                    PermissionRequiredMixin,
-                    TemplateView):
+class DashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     permission_required = "accounts.view_dashboard"
     template_name = "dashboard/index.html"
 
-    # ───────────────────────────────────────────────────────
     def _quick_count(self, key, qs):
         """
-        Tiny helper → caches a queryset.count() for 30 seconds
+        Tiny helper → caches a queryset.count() for 30 seconds
         so the same request (or concurrent ajax) doesn’t hit DB twice.
         """
         cache_key = f"dash-{key}"
         val = cache.get(cache_key)
         if val is None:
             val = qs.count()
-            cache.set(cache_key, val, 30)          # 30 s TTL
+            cache.set(cache_key, val, 30)  # 30s TTL
         return val
 
-    # ───────────────────────────────────────────────────────
     def get_context_data(self, **kwargs):
-        user  = self.request.user
+        user = self.request.user
         perms = user.get_all_permissions()
-        ctx   = super().get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
 
-        # Always‑visible
+        # Always-visible data
         ctx["total_rooms"] = self._quick_count("rooms", Room.objects)
 
-        # Conditional blocks
+        # Conditional blocks based on user permissions
         if "customers.view_customer" in perms:
             ctx["total_customers"] = self._quick_count("customers", Customer.objects)
 
@@ -135,9 +163,9 @@ class DashboardView(LoginRequiredMixin,
 
             ctx["latest_reservations"] = (
                 qs.select_related("customer", "room")
-                  .only("customer__first_name", "customer__last_name",
-                        "room__room_number", "check_in", "status")
-                  .order_by("-created_at")[:6]
+                .only("customer__first_name", "customer__last_name",
+                      "room__room_number", "check_in", "status")
+                .order_by("-created_at")[:6]
             )
 
         if "accounts.change_staff" in perms:
@@ -145,11 +173,53 @@ class DashboardView(LoginRequiredMixin,
                 "pending_staff", Staff.objects.filter(status=Staff.PENDING)
             )
 
+        # Additional Metrics
+        # Active Rooms
+        ctx["active_rooms"] = self._quick_count(
+            "active_rooms", Room.objects.filter(is_available=False)
+        )
+
+        # Laundry metrics (for the current month)
+        current_month = now().month
+        laundry_data = Laundry.objects.filter(created_at__month=current_month).aggregate(
+            total_clothes=Sum('total_items'),
+            used_clothes=Sum('used_items'),
+            returned_clothes=Sum('returned_items'),
+            cost_total=Sum('cost')
+        )
+        ctx['laundry_total_clothes'] = laundry_data['total_clothes'] or 0
+        ctx['laundry_used_clothes'] = laundry_data['used_clothes'] or 0
+        ctx['laundry_returned_clothes'] = laundry_data['returned_clothes'] or 0
+        ctx['laundry_cost_total'] = laundry_data['cost_total'] or 0
+
+        # Complaint Ticket Metrics
+        ctx["total_complaints"] = self._quick_count("complaints", ComplaintTicket.objects)
+        ctx["unresolved_complaints"] = self._quick_count("unresolved_complaints", ComplaintTicket.objects.filter(resolved=False))
+
+        # Total Sales in the last 7 days
+        last_7_days_sales = Invoice.objects.filter(created_at__gte=now() - timedelta(days=7)).aggregate(total_sales=Sum('total_amount'))
+        ctx["total_sales_last_7_days"] = last_7_days_sales["total_sales"] or 0
+
+        # Fetching the top 10 rooms
         ctx["rooms"] = (
             Room.objects.select_related("category")
             .only("room_number", "is_available", "category__name")
             .order_by("room_number")[:10]
         )
+
+        # Additional Data for the Dashboard Cards
+        context_data = [
+            {"description": "Available Rooms", "value": Room.objects.filter(is_available=True).count()},
+            {"description": "Occupied Rooms", "value": Room.objects.count() - Room.objects.filter(is_available=True).count()},
+            {"description": "Total Laundry Clothes", "value": ctx['laundry_total_clothes']},
+            {"description": "Total Complaints", "value": ctx["total_complaints"]},
+            {"description": "Unresolved Complaints", "value": ctx["unresolved_complaints"]},
+            {"description": "Total Sales in Last 7 Days", "value": f"₦{ctx['total_sales_last_7_days']}"},
+        ]
+
+        ctx["context_data"] = context_data
+
+        # Current Time (optional)
         ctx["now"] = now()
         return ctx
     

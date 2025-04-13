@@ -2,63 +2,99 @@
 {% block content %}
 <div class="page-wrapper">
   <div class="content">
-    <div class="card shadow-sm mb-4">
-      <div class="card-header">
-        <h4 class="mb-0">General Report</h4>
+  <div class="card shadow-sm mb-4">
+    <div class="card-header">
+      <h4>General Report</h4>
+    </div>
+    <div class="card-body">
+      <p>This report aggregates key performance and business metrics across our apps.</p>
+      
+      <!-- Metrics Cards -->
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <div class="alert alert-primary text-center">
+            <h5>Available Rooms</h5>
+            <p class="display-6">{{ metric1 }}</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="alert alert-success text-center">
+            <h5>Total Customers</h5>
+            <p class="display-6">{{ metric2 }}</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="alert alert-warning text-center">
+            <h5>Total Invoice Amount</h5>
+            <p class="display-6">₦{{ metric3 }}</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="alert alert-danger text-center">
+            <h5>Occupied Rooms</h5>
+            <p class="display-6">{{ metric4 }}</p>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <p>This general report aggregates key performance and business metrics.</p>
-        <!-- Summary Cards -->
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <div class="alert alert-primary text-center">
-              <h5>Metric 1</h5>
-              <p class="display-6">{{ metric1 }}</p>
+      
+      <!-- Laundry Summary Section -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Laundry Department Summary ({{ laundry_period|capfirst }})</h5>
+          <div class="mt-2">
+            <a href="?period=daily" class="btn btn-sm btn-outline-secondary {% if laundry_period == 'daily' %}active{% endif %}">Daily</a>
+            <a href="?period=weekly" class="btn btn-sm btn-outline-secondary {% if laundry_period == 'weekly' %}active{% endif %}">Weekly</a>
+            <a href="?period=monthly" class="btn btn-sm btn-outline-secondary {% if laundry_period == 'monthly' %}active{% endif %}">Monthly</a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row text-center mb-3">
+            <div class="col-md-4">
+              <strong>Total Clothes Taken:</strong>
+              <p class="display-6">{{ laundry_total_clothes }}</p>
+            </div>
+            <div class="col-md-4">
+              <strong>Used Clothes:</strong>
+              <p class="display-6">{{ laundry_used_clothes }}</p>
+            </div>
+            <div class="col-md-4">
+              <strong>Returned/Unused Clothes:</strong>
+              <p class="display-6">{{ laundry_returned_clothes }}</p>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="alert alert-success text-center">
-              <h5>Metric 2</h5>
-              <p class="display-6">{{ metric2 }}</p>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="alert alert-warning text-center">
-              <h5>Metric 3</h5>
-              <p class="display-6">{{ metric3 }}</p>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="alert alert-danger text-center">
-              <h5>Metric 4</h5>
-              <p class="display-6">{{ metric4 }}</p>
+          <div class="row text-center">
+            <div class="col-md-12">
+              <strong>Total Laundry Cost:</strong>
+              <p class="display-6">₦{{ laundry_cost_total }}</p>
             </div>
           </div>
         </div>
-        <!-- Detailed breakdown -->
-        <h5>Detailed Data</h5>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for data in general_report_data %}
-            <tr>
-              <td>{{ data.description }}</td>
-              <td>{{ data.value }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="2" class="text-center">No detailed data available.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
       </div>
+      
+      <!-- Detailed Breakdown Table -->
+      <h5>Detailed Data</h5>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for data in general_report_data %}
+          <tr>
+            <td>{{ data.description }}</td>
+            <td>{{ data.value }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" class="text-center">No detailed data available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
 </div>
 {% endblock %}

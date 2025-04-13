@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+  <div class="card shadow-sm">
+    <!-- Card Header -->
+    <div class="card-header bg-primary text-white text-center">
+      <h3 class="mb-0">User Profile</h3>
+    </div>
+    <!-- Card Body -->
+    <div class="card-body">
+      <div class="row">
+        <!-- Avatar Column -->
+        <div class="col-md-4 text-center">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+          {% else %}
+            <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+          {% endif %}
+          <h5 class="fw-bold">{{ user.get_full_name }}</h5>
+        </div>
+        <!-- Details Column -->
+        <div class="col-md-8">
+          <p><strong>Email:</strong> {{ user.email }}</p>
+          <p><strong>Phone:</strong> {{ user.phone }}</p>
+          
+          {% if staff %}
+          <hr>
+          <p><strong>Designation:</strong> {{ staff.get_role_display }}</p>
+          <p><strong>Department:</strong> {{ staff.department }}</p>
+          <p><strong>Shift:</strong> {{ staff.get_current_shift_display }}</p>
+          <p>
+            <strong>Status:</strong>
+            {% if staff.status == 'approved' %}
+              <span class="badge bg-success">Approved</span>
+            {% elif staff.status == 'pending' %}
+              <span class="badge bg-warning">Pending</span>
+            {% else %}
+              <span class="badge bg-danger">Rejected</span>
+            {% endif %}
+          </p>
+          {% endif %}
+          
+          <div class="mt-4">
+            <a href="{% url 'accounts:user-profile-edit' %}" class="btn btn-primary">
+              <i class="fas fa-edit me-1"></i> Edit Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Card Footer (Optional) -->
+    <div class="card-footer text-center text-muted">
+      Updated on: {{ user.last_login|date:"M d, Y h:i A" }}
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

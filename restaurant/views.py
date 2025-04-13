@@ -1,6 +1,9 @@
 # restaurant/views.py
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
+
+from restaurant.forms import MenuCategoryForm
 from .models import MenuCategory, MenuItem, KOT, KOTItem
 
 # ---- MENU CATEGORY VIEWS ----
@@ -9,18 +12,21 @@ class MenuCategoryListView(ListView):
     template_name = 'restaurant/category_list.html'
     context_object_name = 'categories'
 
-class MenuCategoryCreateView(CreateView):
+
+class MenuCategoryCreateView(SuccessMessageMixin, CreateView):
     model = MenuCategory
-    fields = ['name', 'description']
+    form_class = MenuCategoryForm
     template_name = 'restaurant/category_form.html'
     success_url = reverse_lazy('restaurant:category-list')
+    success_message = "Category created successfully."
 
-class MenuCategoryUpdateView(UpdateView):
+class MenuCategoryUpdateView(SuccessMessageMixin, UpdateView):
     model = MenuCategory
-    fields = ['name', 'description']
+    form_class = MenuCategoryForm
     template_name = 'restaurant/category_form.html'
     success_url = reverse_lazy('restaurant:category-list')
-
+    success_message = "Category updated successfully."
+    
 class MenuCategoryDeleteView(DeleteView):
     model = MenuCategory
     template_name = 'restaurant/category_confirm_delete.html'

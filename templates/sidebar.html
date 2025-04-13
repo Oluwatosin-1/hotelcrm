@@ -159,12 +159,20 @@
 
         {# ───────── INVOICES ────────── #}
         {% if perms.billing.view_invoice %}
-          {% url 'billing:invoice-list' as inv_list %}
-          <li class="{% if request.path == inv_list %}active{% endif %}">
-            <a href="{{ inv_list }}">
+          <li class="submenu {% if request.resolver_match.app_name == 'billing' %}active{% endif %}">
+            <a href="#">
               <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-05.svg' %}" alt=""></span>
               <span>Invoices</span>
+              <span class="menu-arrow"></span>
             </a>
+            <ul>
+              {% url 'billing:invoice-list' as inv_list %}
+              <li><a href="{{ inv_list }}" class="{% if request.path == inv_list %}active{% endif %}">Invoice List</a></li>
+              {% if perms.billing.add_invoice %}
+                {% url 'billing:invoice-create' as inv_create %}
+                <li><a href="{{ inv_create }}" class="{% if request.path == inv_create %}active{% endif %}">Create Invoice</a></li>
+              {% endif %}
+            </ul>
           </li>
         {% endif %}
 
@@ -176,6 +184,15 @@
             <span>Reports</span><span class="menu-arrow"></span>
           </a>
           <ul>
+            {% url 'reports:report-list' as report_list %}
+            <li><a href="{{ report_list }}" class="{% if request.path == report_list %}active{% endif %}">Report List</a></li>
+
+            {% if perms.reports.add_report %}
+              {% url 'reports:report-create' as report_create %}
+              <li><a href="{{ report_create }}" class="{% if request.path == report_create %}active{% endif %}">Add Report</a></li>
+            {% endif %}
+
+            {# Additional report types can be added here, such as daily sales, police reports, etc. #}
             {% url 'reports:daily-sales' as r_daily %}
             <li><a href="{{ r_daily }}" class="{% if request.path == r_daily %}active{% endif %}">Daily Sales</a></li>
 

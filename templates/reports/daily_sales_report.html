@@ -16,11 +16,11 @@
             </div>
           </div>
           <div class="col-md-8">
-            <!-- You can optionally include a summary table/chart here -->
-            <p>Summary details or trends (to be implemented) go here.</p>
+            <p>Sales summary and trends go here (implement as needed).</p>
           </div>
         </div>
-        <!-- Detailed report sections -->
+
+        <!-- Detailed Sales Data -->
         <h5>Detailed Sales Data</h5>
         <table class="table table-hover">
           <thead>
@@ -32,7 +32,6 @@
             </tr>
           </thead>
           <tbody>
-            {# Loop over a context variable (e.g., daily_sales_data) when available #}
             {% for sale in daily_sales_data %}
             <tr>
               <td>{{ sale.invoice_id }}</td>

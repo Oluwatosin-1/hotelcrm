@@ -32,7 +32,7 @@
               <td>₦{{ laundry.cost }}</td>
               <td>{{ laundry.status|capfirst }}</td>
               <td class="text-center">
-                <a href="{% url 'housekeeping:laundry-update' laundry.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'housekeeping:laundry-edit' laundry.pk %}" class="btn btn-sm btn-warning">Edit</a>
               </td>
             </tr>
             {% endfor %}

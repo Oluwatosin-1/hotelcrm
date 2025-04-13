@@ -3,7 +3,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
     GroupPermissionListView, GroupPermissionUpdateView,
-    UserPermissionListView, UserPermissionUpdateView
+    UserPermissionListView, UserPermissionUpdateView, UserProfileUpdateView, UserProfileView
 )
 from .views import (
     # auth / dashboard
@@ -35,6 +35,8 @@ urlpatterns = [
     # ───────── STAFF WORKFLOW ─────────
     # 1. self‑service application
     path("apply/",           StaffSignupView.as_view(),      name="staff-apply"),
+    path('profile/', UserProfileView.as_view(), name='user-profile'),
+    path('profile/edit/', UserProfileUpdateView.as_view(), name='user-profile-edit'),
 
     # 2. HR / Manager views
     path("staff/pending/",   StaffPendingListView.as_view(), name="staff-pending"),

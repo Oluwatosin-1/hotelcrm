@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h4 class="mb-0">
+            {% if object %}Edit{% else %}Create{% endif %} Report
+          </h4>
+        </div>
+
+        <div class="card-body">
+
+          {# ───────── REPORT FORM (Crispy) ───────── #}
+          {% crispy form %}
+
+        </div><!-- /card-body -->
+
+        <div class="card-footer text-end">
+          <a href="{% url 'reports:report-list' %}" class="btn btn-light">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

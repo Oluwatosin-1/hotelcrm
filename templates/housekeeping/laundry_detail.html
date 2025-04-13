@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h4>Laundry Record Details</h4>
+    </div>
+    <div class="card-body">
+      <p><strong>Reservation:</strong> {% if laundry.reservation %}{{ laundry.reservation }}{% else %}N/A{% endif %}</p>
+      <p><strong>Description:</strong> {{ laundry.item_description }}</p>
+      <p><strong>Cost:</strong> ₦{{ laundry.cost }}</p>
+      <p><strong>Total Clothes:</strong> {{ laundry.total_items }}</p>
+      <p><strong>Used Clothes:</strong> {{ laundry.used_items }}</p>
+      <p><strong>Returned/Unused Clothes:</strong> {{ laundry.returned_items }}</p>
+      <p><strong>Status:</strong> {{ laundry.get_status_display }}</p>
+      <p><strong>Created On:</strong> {{ laundry.created_at|date:"Y-m-d H:i" }}</p>
+    </div>
+    <div class="card-footer text-end">
+      <a href="{% url 'housekeeping:laundry-list' %}" class="btn btn-light">Back</a>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

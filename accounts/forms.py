@@ -2,11 +2,11 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Field, Div
+from crispy_forms.layout import Layout, Row, Column, Field, Div, Submit, HTML
 from django.contrib.contenttypes.models import ContentType
 from accounts.models import User, Staff 
-from django.contrib.auth.models import Group, Permission
-
+from django.contrib.auth.models import Group, Permission 
+from django.contrib.auth.forms import UserChangeForm 
 class GroupPermissionForm(forms.ModelForm):
     permissions = forms.ModelMultipleChoiceField(
         queryset=Permission.objects.select_related('content_type').all(),
@@ -68,6 +68,89 @@ class UserPermissionForm(forms.ModelForm):
             Div("user_permissions", css_class="form-group"),
         )
 
+class UserProfileForm(UserChangeForm):
+    # Personal fields (we override some defaults for styling and placeholder)
+    first_name = forms.CharField(max_length=100, label="First Name")
+    last_name = forms.CharField(max_length=100, label="Last Name")
+    email = forms.EmailField(label="Email")
+    phone = forms.CharField(max_length=20, label="Phone", required=False)
+    avatar = forms.ImageField(label="Avatar", required=False)
+    
+    # Staff-related fields (will only be editable by admin/HR/super_admin)
+    role = forms.ChoiceField(choices=Staff.ROLE_CHOICES, label="Role", required=False)
+    department = forms.CharField(max_length=100, label="Department", required=False)
+    current_shift = forms.ChoiceField(choices=Staff.SHIFT_CHOICES, label="Shift", required=False)
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone', 'avatar']
+
+    def __init__(self, *args, **kwargs):
+        # Expect the view to pass in the currently logged-in user as 'current_user'
+        current_user = kwargs.pop('current_user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Setup Crispy Forms helper for styling
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        
+        # Decide if the staff fields should be editable.
+        # For example, only allow if current_user is superuser or has a specific permission.
+        if current_user and (current_user.is_superuser or current_user.has_perm('accounts.change_role')):
+            # Staff fields will be available
+            staff_fields_layout = Layout(
+                Row(
+                    Column('role', css_class='col-md-4'),
+                    Column('department', css_class='col-md-4'),
+                    Column('current_shift', css_class='col-md-4'),
+                )
+            )
+        else:
+            # Remove staff-related fields from the form
+            self.fields.pop('role', None)
+            self.fields.pop('department', None)
+            self.fields.pop('current_shift', None)
+            staff_fields_layout = None
+        
+        # Build full layout
+        layout = Layout(
+            Row(
+                Column('first_name', css_class='col-md-6'),
+                Column('last_name', css_class='col-md-6'),
+            ),
+            Row(
+                Column('email', css_class='col-md-6'),
+                Column('phone', css_class='col-md-6'),
+            ),
+            Row(
+                Column('avatar', css_class='col-md-6'),
+            ),
+        )
+        
+        if staff_fields_layout:
+            layout.append(HTML("<hr><h5 class='mt-3'>Staff Details</h5>"))
+            layout.append(staff_fields_layout)
+            
+        layout.append(Submit('submit', 'Save Changes', css_class='btn btn-primary mt-3'))
+        self.helper.layout = layout
+
+    def save(self, commit=True):
+        # Save the User instance first.
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+
+        # Save staff-related fields if available and if the user has a staff profile
+        if hasattr(user, 'staff_profile'):
+            staff = user.staff_profile
+            if 'role' in self.cleaned_data:  # field exists only if user is allowed to edit
+                staff.role = self.cleaned_data.get('role') or staff.role
+            if 'department' in self.cleaned_data:
+                staff.department = self.cleaned_data.get('department') or staff.department
+            if 'current_shift' in self.cleaned_data:
+                staff.current_shift = self.cleaned_data.get('current_shift') or staff.current_shift
+            staff.save()
+        return user
 # ──────────────────────────────────────────────────────────────
 # 1.  PUBLIC USER SIGN‑UP  (optional)
 # ----------------------------------------------------------------

@@ -1,3 +1,4 @@
+# housekeeping/models.py
 from django.db import models
 from django.urls import reverse
 from reservations.models import Reservation
@@ -22,11 +23,18 @@ class Laundry(models.Model):
     )
     item_description = models.CharField(max_length=200)
     cost = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+
+    # New fields for laundry report
+    total_items = models.PositiveIntegerField("Total Clothes", default=0)
+    used_items = models.PositiveIntegerField("Used Clothes", default=0)
+    returned_items = models.PositiveIntegerField("Returned/Unused Clothes", default=0)
+
     status = models.CharField(
         max_length=50, 
         choices=STATUS_CHOICES, 
         default=STATUS_PENDING
     )
+    created_at = models.DateTimeField(auto_now_add=True)  # for reporting purposes
 
     class Meta:
         ordering = ['-id']
@@ -37,7 +45,6 @@ class Laundry(models.Model):
         return f"Laundry #{self.pk} - {self.item_description}"
 
     def get_absolute_url(self):
-        # Optional: update to use the correct URL pattern name if a detail view exists
         return reverse('housekeeping:laundry-detail', kwargs={'pk': self.pk})
 
 
@@ -63,7 +70,6 @@ class ComplaintTicket(models.Model):
         return f"Complaint #{self.pk} - {self.subject}"
 
     def get_absolute_url(self):
-        # Optional: update if a complaint detail view is created
         return reverse('housekeeping:complaint-detail', kwargs={'pk': self.pk})
 
     @property
