@@ -13,11 +13,14 @@ from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
+from django.db import transaction
 from django.views.generic import (
     TemplateView, ListView, CreateView, UpdateView, DeleteView
 )
-
+from django.http import HttpResponseRedirect
+from datetime import datetime, timezone as py_tz
+from django.utils import timezone
 from billing.models import Invoice
 from housekeeping.models import Laundry, ComplaintTicket
 from rooms.models        import Room
@@ -26,7 +29,7 @@ from restaurant.models   import MenuItem
 from reservations.models import Reservation
 from .models             import User, Staff
 from .forms              import (
-    LoginForm, UserProfileForm, UserSignUpForm,
+    LoginForm, TimeEntryAdminForm, UserProfileForm, UserSignUpForm,
     StaffSignupForm,           #  new (self‑service)
     StaffUserCreationForm,     #  HR create‑approved
     StaffEditForm,             #  edit
@@ -39,6 +42,9 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
    
 from django.contrib.auth.models import Permission
+ 
+from .models import TimeEntry
+from .forms import TimeEntryForm
 
 class UserPermissionListView(PermissionRequiredMixin, ListView):
     permission_required = "auth.view_user"
@@ -374,3 +380,83 @@ class StaffDeleteView(LoginRequiredMixin,
     model         = Staff
     template_name = "dashboard/staff_confirm_delete.html"
     success_url   = reverse_lazy("accounts:staff-list")
+
+
+class ClockToggleView(LoginRequiredMixin, ListView):
+    """
+    POST → if user has an open entry, clock out;
+           else create a new entry (clock‑in).
+    Redirects back to timesheet.
+    """
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        with transaction.atomic():
+            open_entry = TimeEntry.objects.open().filter(user=request.user).first()
+            if open_entry:
+                open_entry.clock_out = timezone.now()
+                open_entry.save(update_fields=["clock_out"])
+                messages.success(request, "Clock‑out successful.")
+            else:
+                TimeEntry.objects.create(user=request.user)
+                messages.success(request, "Clock‑in recorded.")
+        return HttpResponseRedirect(reverse("accounts:entry-list"))
+
+
+class EntryListView(LoginRequiredMixin, ListView):
+    template_name       = "attendance/entry_list.html"
+    context_object_name = "entries"
+    paginate_by         = 30
+
+    def get_queryset(self):
+        qs = TimeEntry.objects.select_related("user")
+        if self.request.user.has_perm("attendance.view_all_timeentry"):
+            return qs
+        return qs.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["has_open_entry"] = TimeEntry.objects.open().filter(
+            user=self.request.user).exists()
+        return ctx
+
+
+class EntryEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Managers & HR can edit anyone; users can never hit this URL
+    (list template hides the edit button without the perm).
+    """
+    permission_required = "accounts.change_all_timeentry"
+    model         = TimeEntry
+    form_class    = TimeEntryAdminForm
+    template_name = "attendance/entry_form.html"
+    success_url   = reverse_lazy("accounts:entry-list")
+
+
+class EntryUpdateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    UpdateView
+):
+    """
+    Only users with 'change_all_timeentry' can edit others
+    (and everyone can edit their own).
+    """
+    model = TimeEntry
+    form_class = TimeEntryForm
+    template_name = "attendance/entry_form.html"
+    success_url = reverse_lazy("accounts:entry-list")
+    permission_required = "attendance.change_all_timeentry"
+
+    def has_permission(self):
+        # allow owner to edit their own even without the special perm
+        if super().has_permission():
+            return True
+        entry = self.get_object()
+        return entry.user == self.request.user
+
+class TimeEntryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = TimeEntry
+    permission_required = 'attendance.delete_all_timeentry'
+    template_name = 'attendance/timeentry_confirm_delete.html'
+    success_url = reverse_lazy('accounts:entry-list')

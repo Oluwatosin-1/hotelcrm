@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Staff
+from .models import TimeEntry, User, Staff
 
 
 # ──────────────────────────────────────────────────────────────
@@ -112,3 +112,9 @@ class StaffAdmin(admin.ModelAdmin):
     def reject_selected(self, request, queryset):
         updated = queryset.update(status=Staff.REJECTED)
         self.message_user(request, f"{updated} staff member(s) rejected.")
+
+@admin.register(TimeEntry)
+class TimeEntryAdmin(admin.ModelAdmin):
+    list_display = ("user", "clock_in", "clock_out", "duration")
+    list_filter  = ("user", "clock_in", "clock_out")
+    search_fields = ("user__first_name", "user__last_name", "notes")

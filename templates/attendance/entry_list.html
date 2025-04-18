@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+
+    <h2>My Timesheet{% if perms.attendance.view_all_timeentry %}s{% endif %}</h2>
+
+    <form
+      method="post"
+      action="{% url 'accounts:clock-toggle' %}"
+      class="mb-3"
+      onsubmit="{% if has_open_entry %}return confirm('Are you sure you want to clock out?');{% else %}return true;{% endif %}"
+    >
+      {% csrf_token %}
+      {% if has_open_entry %}
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-sign-out-alt me-1"></i> Clock Out
+        </button>
+      {% else %}
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-sign-in-alt me-1"></i> Clock In
+        </button>
+      {% endif %}
+    </form>
+
+    <div class="card shadow-sm">
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>User</th>
+              <th>Date</th>
+              <th>In</th>
+              <th>Out</th>
+              <th>Duration</th>
+              {% if perms.attendance.change_all_timeentry or perms.attendance.delete_all_timeentry %}
+                <th class="text-end">Actions</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in entries %}
+              <tr>
+                <td>{{ t.user.get_full_name|default:t.user.username }}</td>
+                <td>{{ t.clock_in|date:"Y‑m‑d" }}</td>
+                <td>{{ t.clock_in|time:"H:i" }}</td>
+                <td>{% if t.clock_out %}{{ t.clock_out|time:"H:i" }}{% else %}—{% endif %}</td>
+                <td>{% if t.duration %}{{ t.duration }}{% else %}—{% endif %}</td>
+                {% if perms.attendance.change_all_timeentry or perms.attendance.delete_all_timeentry %}
+                  <td class="text-end">
+                    {# Edit button #}
+                    {% if perms.attendance.change_all_timeentry %}
+                      <a href="{% url 'accounts:entry-edit' t.pk %}"
+                         class="btn btn-sm btn-outline-secondary me-1"
+                         title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                    {% endif %}
+
+                    {# Delete form/button #}
+                    {% if perms.attendance.delete_all_timeentry %}
+                      <form
+                        method="post"
+                        action="{% url 'accounts:entry-delete' t.pk %}"
+                        style="display:inline"
+                        onsubmit="return confirm('Are you sure you want to delete this entry?');"
+                      >
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </form>
+                    {% endif %}
+                  </td>
+                {% endif %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-3">No entries yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

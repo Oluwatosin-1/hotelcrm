@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, Div, Submit, HTML
 from django.contrib.contenttypes.models import ContentType
-from accounts.models import User, Staff 
+from accounts.models import TimeEntry, User, Staff 
 from django.contrib.auth.models import Group, Permission 
 from django.contrib.auth.forms import UserChangeForm 
 class GroupPermissionForm(forms.ModelForm):
@@ -340,3 +340,51 @@ class StaffApprovalForm(forms.ModelForm):
         model  = Staff
         fields = ["status", "approved_by", 
                   "is_active"]
+ 
+class TimeEntryForm(forms.ModelForm):
+    class Meta:
+        model = TimeEntry
+        fields = ["clock_in", "clock_out", "notes"]
+        widgets = {
+            "clock_in":  forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "clock_out": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "notes":     forms.Textarea(attrs={"rows": 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.layout = Layout(
+            Row(
+                Column("clock_in", css_class="col-md-6"),
+                Column("clock_out", css_class="col-md-6"),
+            ),
+            "notes",
+            Submit("submit", "Save", css_class="btn btn-primary mt-3")
+        )
+
+class TimeEntryAdminForm(forms.ModelForm):
+    """
+    Used by managers/supervisors to edit any entry.
+    Regular employees never see this.
+    """
+    class Meta:
+        model   = TimeEntry
+        fields  = ["user", "clock_in", "clock_out", "notes"]
+        widgets = {
+            "clock_in":  forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "clock_out": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.layout = Layout(
+            Row(Column("user",       css_class="col-md-4"),
+                Column("clock_in",   css_class="col-md-4"),
+                Column("clock_out",  css_class="col-md-4")),
+            "notes",
+            Submit("submit", "Save", css_class="btn btn-primary mt-3")
+        )

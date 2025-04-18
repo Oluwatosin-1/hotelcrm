@@ -106,6 +106,22 @@
           </ul>
         </li>
         {% endif %}
+        {# in sidebar.html #}
+        {% if request.user.is_authenticated %}
+        <li class="submenu {% if request.resolver_match.app_name == 'attendance' %}active{% endif %}">
+          <a href="#">
+            <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-10.svg' %}" alt=""></span>
+            <span>Time&nbsp;Management</span><span class="menu-arrow"></span>
+          </a>
+          <ul>
+            {% url 'accounts:entry-list' as my_ts %}
+            <li><a href="{{ my_ts }}" class="{% if request.path == my_ts %}active{% endif %}">My Timesheet</a></li>
+            {% if perms.attendance.view_all_timeentry %}
+              <li><a href="{{ my_ts }}">All Timesheets</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        {% endif %}
 
         {# ───────── RESERVATIONS ────── #}
         {% if perms.reservations.view_reservation %}

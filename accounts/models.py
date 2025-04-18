@@ -3,8 +3,10 @@ from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
-
+from django.utils import timezone 
+from django.db import models 
+from django.urls import reverse
+from datetime import timedelta
 
 class User(AbstractUser):
     phone  = models.CharField(max_length=20, blank=True)
@@ -81,3 +83,57 @@ class Staff(models.Model):
     @property
     def full_name(self):
         return self.user.get_full_name()
+    
+class TimeEntryQuerySet(models.QuerySet):
+    def open(self):
+        return self.filter(clock_out__isnull=True)
+
+    def closed(self):
+        return self.filter(clock_out__isnull=False)
+
+
+class TimeEntry(models.Model):
+    """
+    One “shift” for a user.
+    Only one open entry per user at any moment.
+    """
+    user       = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   on_delete=models.CASCADE,
+                                   related_name="time_entries")
+    clock_in   = models.DateTimeField(default=timezone.now)
+    clock_out  = models.DateTimeField(null=True, blank=True)
+    notes      = models.TextField(blank=True)
+
+    objects    = TimeEntryQuerySet.as_manager()
+
+    class Meta:
+        ordering     = ["-clock_in"]
+        constraints  = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(clock_out__isnull=True),
+                name="uniq_open_entry_per_user",
+            )
+        ]
+        permissions  = [
+            ("view_all_timeentry",   "Can view all time entries"),
+            ("change_all_timeentry", "Can edit all time entries"),
+        ]
+
+    # ───────── helpers ─────────
+    @property
+    def is_open(self) -> bool:
+        return self.clock_out is None
+
+    @property
+    def duration(self) -> timedelta | None:
+        if self.clock_out:
+            return self.clock_out - self.clock_in
+        return None
+
+    def __str__(self):
+        state = "OPEN" if self.is_open else "closed"
+        return f"{self.user.get_full_name()} – {self.clock_in:%Y‑m‑d %H:%M} ({state})"
+
+    def get_absolute_url(self):
+        return reverse("accounts:entry-list")

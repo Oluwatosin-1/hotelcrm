@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-j3t*7nf&8hmv@jivrwpae)q@bi^s-&bw8w44o+(34yf*yaa@_h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*", " "]
 
 
 # Application definition
@@ -74,6 +74,7 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
+                'accounts.context_processors.clock_status',
                 "django.contrib.messages.context_processors.messages",
             ],
         },
@@ -100,6 +101,16 @@ DATABASES = {
     }
 }
 
+
+# # Set session to expire in 30 minutes (1800 seconds)
+# SESSION_COOKIE_AGE = 1800  # 30 minutes
+# # Ensure session expires when the browser is closed
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# # Enable database-backed session storage (Ensure you run migrations)
+# SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# SECURE_SSL_REDIRECT = False
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

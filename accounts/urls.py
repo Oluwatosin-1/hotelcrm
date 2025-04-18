@@ -2,7 +2,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
-    GroupPermissionListView, GroupPermissionUpdateView,
+    ClockToggleView, EntryEditView, EntryListView, EntryUpdateView, GroupPermissionListView, GroupPermissionUpdateView, TimeEntryDeleteView,
     UserPermissionListView, UserPermissionUpdateView, UserProfileUpdateView, UserProfileView
 )
 from .views import (
@@ -81,5 +81,10 @@ urlpatterns = [
     path("group-permissions/<int:pk>/edit/", GroupPermissionUpdateView.as_view(), name="group-permission-edit"),
     path("user-permissions/", UserPermissionListView.as_view(), name="user-permissions-list"),
     path("user-permissions/<int:pk>/edit/", UserPermissionUpdateView.as_view(), name="user-permission-edit"),
+    
+    path("",                EntryListView.as_view(),   name="entry-list"), 
+    path("toggle/",        ClockToggleView.as_view(), name="clock-toggle"),
+    path("<int:pk>/edit/", EntryEditView.as_view(),   name="entry-edit"), 
+    path('entry/<int:pk>/delete/', TimeEntryDeleteView.as_view(), name='entry-delete'),
 
 ]
