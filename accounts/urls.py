@@ -2,52 +2,57 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
-    ClockToggleView, EntryEditView, EntryListView, EntryUpdateView, GroupPermissionListView, GroupPermissionUpdateView, TimeEntryDeleteView,
-    UserPermissionListView, UserPermissionUpdateView, UserProfileUpdateView, UserProfileView
+    ClockToggleView,
+    EntryEditView,
+    EntryListView,
+    EntryUpdateView,
+    GroupPermissionListView,
+    GroupPermissionUpdateView,
+    TimeEntryDeleteView,
+    UserPermissionListView,
+    UserPermissionUpdateView,
+    UserProfileUpdateView,
+    UserProfileView,
 )
 from .views import (
     # auth / dashboard
-    CustomLoginView, SignUpView, LogoutView, DashboardView,
-
+    CustomLoginView,
+    SignUpView,
+    LogoutView,
+    DashboardView,
     # staff workflow
-    StaffSignupView,        #  self‑service application  (status = pending)
-    StaffListView,          #  all staff (approved + pending + rejected)
-    StaffPendingListView,   #  only pending – for HR / Manager
-    StaffCreateView,        #  HR creates approved staff in one go
-    StaffApproveView,       #  approve / reject a pending staff member
-    StaffUpdateView,        #  edit existing staff
-    StaffDeleteView,        #  delete staff
+    StaffSignupView,  #  self‑service application  (status = pending)
+    StaffListView,  #  all staff (approved + pending + rejected)
+    StaffPendingListView,  #  only pending – for HR / Manager
+    StaffCreateView,  #  HR creates approved staff in one go
+    StaffApproveView,  #  approve / reject a pending staff member
+    StaffUpdateView,  #  edit existing staff
+    StaffDeleteView,  #  delete staff
 )
 
 app_name = "accounts"
 
 urlpatterns = [
     # ───────── AUTH ─────────
-    path("signin/",   CustomLoginView.as_view(), name="signin"),
-    path("logout/",   LogoutView.as_view(),      name="logout"),
-
+    path("signin/", CustomLoginView.as_view(), name="signin"),
+    path("logout/", LogoutView.as_view(), name="logout"),
     # optional public user sign‑up
-    path("register/", SignUpView.as_view(),      name="signup"),
-
+    path("register/", SignUpView.as_view(), name="signup"),
     # ───────── DASHBOARD ────
-    path("dashboard/", DashboardView.as_view(),  name="dashboard"),
-
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
     # ───────── STAFF WORKFLOW ─────────
     # 1. self‑service application
-    path("apply/",           StaffSignupView.as_view(),      name="staff-apply"),
-    path('profile/', UserProfileView.as_view(), name='user-profile'),
-    path('profile/edit/', UserProfileUpdateView.as_view(), name='user-profile-edit'),
-
+    path("apply/", StaffSignupView.as_view(), name="staff-apply"),
+    path("profile/", UserProfileView.as_view(), name="user-profile"),
+    path("profile/edit/", UserProfileUpdateView.as_view(), name="user-profile-edit"),
     # 2. HR / Manager views
-    path("staff/pending/",   StaffPendingListView.as_view(), name="staff-pending"),
+    path("staff/pending/", StaffPendingListView.as_view(), name="staff-pending"),
     path("staff/<int:pk>/review/", StaffApproveView.as_view(), name="staff-review"),
-
     # 3. standard CRUD (require permissions)
-    path("staff/",                    StaffListView.as_view(),   name="staff-list"),
-    path("staff/create/",             StaffCreateView.as_view(), name="staff-create"),
-    path("staff/<int:pk>/edit/",      StaffUpdateView.as_view(), name="staff-edit"),
-    path("staff/<int:pk>/delete/",    StaffDeleteView.as_view(), name="staff-delete"),
-
+    path("staff/", StaffListView.as_view(), name="staff-list"),
+    path("staff/create/", StaffCreateView.as_view(), name="staff-create"),
+    path("staff/<int:pk>/edit/", StaffUpdateView.as_view(), name="staff-edit"),
+    path("staff/<int:pk>/delete/", StaffDeleteView.as_view(), name="staff-delete"),
     # ───────── PASSWORD RESET ────────
     path(
         "password_reset/",
@@ -77,14 +82,28 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path("group-permissions/", GroupPermissionListView.as_view(), name="group-permissions-list"),
-    path("group-permissions/<int:pk>/edit/", GroupPermissionUpdateView.as_view(), name="group-permission-edit"),
-    path("user-permissions/", UserPermissionListView.as_view(), name="user-permissions-list"),
-    path("user-permissions/<int:pk>/edit/", UserPermissionUpdateView.as_view(), name="user-permission-edit"),
-    
-    path("",                EntryListView.as_view(),   name="entry-list"), 
-    path("toggle/",        ClockToggleView.as_view(), name="clock-toggle"),
-    path("<int:pk>/edit/", EntryEditView.as_view(),   name="entry-edit"), 
-    path('entry/<int:pk>/delete/', TimeEntryDeleteView.as_view(), name='entry-delete'),
-
+    path(
+        "group-permissions/",
+        GroupPermissionListView.as_view(),
+        name="group-permissions-list",
+    ),
+    path(
+        "group-permissions/<int:pk>/edit/",
+        GroupPermissionUpdateView.as_view(),
+        name="group-permission-edit",
+    ),
+    path(
+        "user-permissions/",
+        UserPermissionListView.as_view(),
+        name="user-permissions-list",
+    ),
+    path(
+        "user-permissions/<int:pk>/edit/",
+        UserPermissionUpdateView.as_view(),
+        name="user-permission-edit",
+    ),
+    path("", EntryListView.as_view(), name="entry-list"),
+    path("toggle/", ClockToggleView.as_view(), name="clock-toggle"),
+    path("<int:pk>/edit/", EntryEditView.as_view(), name="entry-edit"),
+    path("entry/<int:pk>/delete/", TimeEntryDeleteView.as_view(), name="entry-delete"),
 ]

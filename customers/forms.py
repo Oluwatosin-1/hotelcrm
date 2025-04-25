@@ -4,15 +4,20 @@ from crispy_forms.bootstrap import FormActions
 from django import forms
 from .models import Customer
 
+
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = [
-            "first_name", "last_name",
-            "gender", "date_of_birth",
-            "email", "phone",
+            "first_name",
+            "last_name",
+            "gender",
+            "date_of_birth",
+            "email",
+            "phone",
             "address",
-            "id_card_type", "id_card_number",
+            "id_card_type",
+            "id_card_number",
             "notes",
         ]
         widgets = {
@@ -22,7 +27,7 @@ class CustomerForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # Optional: add placeholders
         self.fields["first_name"].widget.attrs["placeholder"] = "First name"
         self.fields["last_name"].widget.attrs["placeholder"] = "Last name"
@@ -36,20 +41,20 @@ class CustomerForm(forms.ModelForm):
         self.helper.layout = Layout(
             Row(
                 Column("first_name", css_class="col-md-6"),
-                Column("last_name",  css_class="col-md-6")
+                Column("last_name", css_class="col-md-6"),
             ),
             Row(
-                Column("gender",        css_class="col-md-6"),
-                Column("date_of_birth", css_class="col-md-6")
+                Column("gender", css_class="col-md-6"),
+                Column("date_of_birth", css_class="col-md-6"),
             ),
             Row(
                 Column("email", css_class="col-md-6"),
-                Column("phone", css_class="col-md-6")
+                Column("phone", css_class="col-md-6"),
             ),
             Field("address"),
             Row(
-                Column("id_card_type",   css_class="col-md-6"),
-                Column("id_card_number", css_class="col-md-6")
+                Column("id_card_type", css_class="col-md-6"),
+                Column("id_card_number", css_class="col-md-6"),
             ),
-            Field("notes")
+            Field("notes"),
         )

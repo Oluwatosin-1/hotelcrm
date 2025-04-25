@@ -1,72 +1,84 @@
 # accounts/signals.py  (very top)
-from django.contrib.contenttypes.models import ContentType   # ←  add this
-from django.contrib.auth.models        import Group, Permission
-from django.db.models.signals          import post_save, post_migrate
-from django.dispatch                   import receiver
-from django.db                         import transaction
-from accounts.models                   import Staff, User
+from django.contrib.contenttypes.models import ContentType  # ←  add this
+from django.contrib.auth.models import Group, Permission
+from django.db.models.signals import post_save, post_migrate
+from django.dispatch import receiver
+from django.db import transaction
+from accounts.models import Staff, User
 
 # ────────────────────────────────────────────────────────────────
 # 1.  Role → Permission matrix  (same list you use in bootstrap_roles)
 # ----------------------------------------------------------------
 ROLE_PERMS = {
     "general_manager": {
-        "rooms":        ["add_room", "change_room", "delete_room", "view_room"],
-        "reservations": ["add_reservation", "change_reservation", "delete_reservation", "view_reservation"],
-        "billing":      ["add_invoice", "change_invoice", "delete_invoice", "view_invoice",
-                         "add_payment", "view_payment"],
-        "reports":      ["view_report"],
-        "*":            ["view_dashboard"],
+        "rooms": ["add_room", "change_room", "delete_room", "view_room"],
+        "reservations": [
+            "add_reservation",
+            "change_reservation",
+            "delete_reservation",
+            "view_reservation",
+        ],
+        "billing": [
+            "add_invoice",
+            "change_invoice",
+            "delete_invoice",
+            "view_invoice",
+            "add_payment",
+            "view_payment",
+        ],
+        "reports": ["view_report"],
+        "*": ["view_dashboard"],
     },
     "auditor": {
         "billing": ["view_invoice", "view_payment"],
         "reports": ["view_report"],
-        "*":       ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "accountant": {
         "billing": ["view_invoice", "add_payment", "view_payment"],
-        "*":       ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "hr": {
         "accounts": ["add_user", "change_user", "view_user"],
-        "*":        ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "admin_officer": {
         "accounts": ["view_user"],
-        "*":        ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "supervisor": {
         "reservations": ["view_reservation", "change_reservation"],
-        "*":            ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "chef": {
         "restaurant": ["view_menuitem", "add_kot", "view_kot"],
-        "*":          ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "bar_waiter": {
         "restaurant": ["view_menuitem", "add_kot", "view_kot"],
-        "*":          ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "room_service": {
-        "restaurant":  ["add_kot"],
+        "restaurant": ["add_kot"],
         "reservations": ["view_reservation"],
-        "*":            ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "restaurant_cashier": {
         "billing": ["add_invoice", "add_payment", "view_invoice", "view_payment"],
-        "*":       ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
     "receptionist": {
         "reservations": ["add_reservation", "change_reservation", "view_reservation"],
-        "rooms":        ["view_room"],
-        "customers":    ["add_customer", "change_customer", "view_customer"],
-        "*":            ["view_dashboard"],
+        "rooms": ["view_room"],
+        "customers": ["add_customer", "change_customer", "view_customer"],
+        "*": ["view_dashboard"],
     },
 }
 
 # ────────────────────────────────────────────────────────────────
 # 2.  After *every* migrate, make sure groups & perms exist
 # ----------------------------------------------------------------
+
 
 @receiver(post_migrate)
 @transaction.atomic
@@ -86,7 +98,7 @@ def create_role_groups(sender, **kwargs):
 
         for app_label, codenames in app_perms.items():
             for codename in codenames:
-                if app_label == "*":                   # only view_dashboard lives here
+                if app_label == "*":  # only view_dashboard lives here
                     perm = dashboard_perm
                 else:
                     try:
@@ -98,7 +110,8 @@ def create_role_groups(sender, **kwargs):
                         # skip silently until the model is added / migrated
                         continue
                 group.permissions.add(perm)
-                
+
+
 # ────────────────────────────────────────────────────────────────
 # 3.  Whenever a Staff record is saved, sync its user’s group
 # ----------------------------------------------------------------

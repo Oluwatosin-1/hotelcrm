@@ -9,51 +9,54 @@ from django.db.models import Q
 from django.utils import timezone
 
 from customers.models import Customer
-from rooms.models      import Room
-from restaurant.models import MenuItem 
+from rooms.models import Room
+from restaurant.models import MenuItem
+
 
 # ──────────────────────────────────────────────────────────────
 class Reservation(models.Model):
-    PENDING   = "pending"
-    ACTIVE    = "active"
+    PENDING = "pending"
+    ACTIVE = "active"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 
     STATUS_CHOICES = [
-        (PENDING,   "Pending"),
-        (ACTIVE,    "Active"),
+        (PENDING, "Pending"),
+        (ACTIVE, "Active"),
         (COMPLETED, "Completed"),
         (CANCELLED, "Cancelled"),
     ]
 
-    customer         = models.ForeignKey(Customer, on_delete=models.PROTECT)
-    room             = models.ForeignKey(Room,     on_delete=models.PROTECT)
-    check_in         = models.DateField()
-    check_out        = models.DateField()
-    actual_check_in  = models.DateTimeField(blank=True, null=True)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    room = models.ForeignKey(Room, on_delete=models.PROTECT)
+    check_in = models.DateField()
+    check_out = models.DateField()
+    actual_check_in = models.DateTimeField(blank=True, null=True)
     actual_check_out = models.DateTimeField(blank=True, null=True)
 
     number_of_guests = models.PositiveIntegerField(default=1)
-    deposit_amount   = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    status           = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
-    notes            = models.TextField(blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
+    notes = models.TextField(blank=True)
 
-    created_by       = models.ForeignKey(
+    created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name="reservations_created",
-        null=True, blank=True,
+        null=True,
+        blank=True,
     )
-    updated_by       = models.ForeignKey(
+    updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name="reservations_updated",
-        null=True, blank=True,
+        null=True,
+        blank=True,
     )
 
-    created_at       = models.DateTimeField(auto_now_add=True)
-    updated_at       = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     # ───────────── validation ─────────────
     def clean(self):
@@ -62,11 +65,13 @@ class Reservation(models.Model):
             raise ValidationError("Check‑out date must be after check‑in date.")
 
         # Overlap detection for same room, excluding self
-        overlap = Reservation.objects.filter(
-            room=self.room,
-            status__in=[self.PENDING, self.ACTIVE],
-        ).exclude(pk=self.pk).filter(
-            Q(check_in__lt=self.check_out) & Q(check_out__gt=self.check_in)
+        overlap = (
+            Reservation.objects.filter(
+                room=self.room,
+                status__in=[self.PENDING, self.ACTIVE],
+            )
+            .exclude(pk=self.pk)
+            .filter(Q(check_in__lt=self.check_out) & Q(check_out__gt=self.check_in))
         )
         if overlap.exists():
             raise ValidationError("This room is already booked for the selected dates.")
@@ -99,14 +104,17 @@ class Reservation(models.Model):
     @property
     def invoice(self):
         """Return linked invoice from billing app (or None)."""
-        from billing.models import Invoice   # local import avoids circularity
+        from billing.models import Invoice  # local import avoids circularity
 
-        return getattr(self, "_invoice_cache", None) or Invoice.objects.filter(reservation=self).first()
+        return (
+            getattr(self, "_invoice_cache", None)
+            or Invoice.objects.filter(reservation=self).first()
+        )
 
     # ───────────── meta ─────────────
     class Meta:
         ordering = ["-check_in"]
-        indexes  = [
+        indexes = [
             models.Index(fields=["room", "check_in"]),
             models.Index(fields=["status"]),
         ]
@@ -126,10 +134,13 @@ class Reservation(models.Model):
 # ──────────────────────────────────────────────────────────────
 class ReservationItem(models.Model):
     """Food / restaurant items added to the reservation."""
-    reservation = models.ForeignKey(Reservation, related_name="items", on_delete=models.CASCADE)
-    menu_item   = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
-    quantity    = models.PositiveIntegerField(default=1)
-    unit_price  = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+
+    reservation = models.ForeignKey(
+        Reservation, related_name="items", on_delete=models.CASCADE
+    )
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
 
     def save(self, *args, **kwargs):
         # default unit_price from menu item if not provided
@@ -148,9 +159,12 @@ class ReservationItem(models.Model):
 # ──────────────────────────────────────────────────────────────
 class MiscCharge(models.Model):
     """Any other charge (laundry, taxi, etc.)."""
-    reservation = models.ForeignKey(Reservation, related_name="misc", on_delete=models.CASCADE)
+
+    reservation = models.ForeignKey(
+        Reservation, related_name="misc", on_delete=models.CASCADE
+    )
     description = models.CharField(max_length=200)
-    amount      = models.DecimalField(max_digits=8, decimal_places=2)
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
         return f"{self.description} – {self.amount}"

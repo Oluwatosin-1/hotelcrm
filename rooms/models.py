@@ -1,10 +1,12 @@
 # rooms/models.py
 from django.db import models
 
+
 class RoomCategory(models.Model):
     """
     E.g. Deluxe, Suite, Standard, etc.
     """
+
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     base_price = models.DecimalField(max_digits=8, decimal_places=2)  # base daily rate

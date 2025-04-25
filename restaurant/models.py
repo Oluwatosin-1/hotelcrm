@@ -2,12 +2,14 @@
 from django.db import models
 from django.utils import timezone
 
+
 class MenuCategory(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.name
+
 
 class MenuItem(models.Model):
     category = models.ForeignKey(MenuCategory, on_delete=models.CASCADE)
@@ -19,12 +21,14 @@ class MenuItem(models.Model):
     def __str__(self):
         return f"{self.name} - {self.category.name}"
 
+
 class KOT(models.Model):
     """
     Kitchen Order Ticket for internal restaurant usage.
-    Could reference reservation if the order is for an in-house guest 
+    Could reference reservation if the order is for an in-house guest
     or be 'None' if it's a walk-in.
     """
+
     table_number = models.CharField(max_length=10, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     notes = models.TextField(blank=True, null=True)
@@ -37,11 +41,13 @@ class KOT(models.Model):
     def __str__(self):
         return f"KOT #{self.pk}"
 
+
 class KOTItem(models.Model):
     """
     Items within a specific KOT.
     """
-    kot = models.ForeignKey(KOT, on_delete=models.CASCADE, related_name='kot_items')
+
+    kot = models.ForeignKey(KOT, on_delete=models.CASCADE, related_name="kot_items")
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 

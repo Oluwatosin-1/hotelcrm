@@ -7,7 +7,7 @@ from .models import Room, RoomCategory
 
 class RoomCategoryForm(forms.ModelForm):
     class Meta:
-        model  = RoomCategory
+        model = RoomCategory
         fields = ["name", "description", "base_price"]
 
     def __init__(self, *args, **kwargs):
@@ -25,7 +25,7 @@ class RoomCategoryForm(forms.ModelForm):
 
 class RoomForm(forms.ModelForm):
     class Meta:
-        model  = Room
+        model = Room
         fields = ["room_number", "category", "floor", "is_available"]
 
     def __init__(self, *args, **kwargs):
@@ -35,10 +35,10 @@ class RoomForm(forms.ModelForm):
         self.helper.layout = Layout(
             Row(
                 Column("room_number", css_class="col-md-6"),
-                Column("category",     css_class="col-md-6"),
+                Column("category", css_class="col-md-6"),
             ),
             Row(
-                Column("floor",        css_class="col-md-6"),
+                Column("floor", css_class="col-md-6"),
                 Column("is_available", css_class="col-md-6"),
             ),
         )

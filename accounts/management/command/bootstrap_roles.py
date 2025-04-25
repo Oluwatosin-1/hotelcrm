@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.apps import apps
 
+
 #
 #  Make sure a dummy permission “accounts | user | view_dashboard” exists
 #
@@ -14,84 +15,86 @@ def ensure_view_dashboard_perm():
         defaults={"name": "Can view dashboard"},
     )
 
+
 ROLE_PERMS: dict[str, dict[str, list[str]]] = {
     # 1 ───────────────────────────────────────────
     "general_manager": {
-        "rooms":        ["add_room", "change_room", "delete_room", "view_room"],
-        "reservations": ["add_reservation", "change_reservation", "delete_reservation", "view_reservation"],
-        "billing":      ["add_invoice", "change_invoice", "delete_invoice", "view_invoice",
-                         "add_payment", "view_payment"],
-        "reports":      ["view_report"],
-        "*":            ["view_dashboard"],
+        "rooms": ["add_room", "change_room", "delete_room", "view_room"],
+        "reservations": [
+            "add_reservation",
+            "change_reservation",
+            "delete_reservation",
+            "view_reservation",
+        ],
+        "billing": [
+            "add_invoice",
+            "change_invoice",
+            "delete_invoice",
+            "view_invoice",
+            "add_payment",
+            "view_payment",
+        ],
+        "reports": ["view_report"],
+        "*": ["view_dashboard"],
     },
-
     # 2 ───────────────────────────────────────────
     "auditor": {
         "billing": ["view_invoice", "view_payment"],
-        "rooms":   ["view_room"],
+        "rooms": ["view_room"],
         "reports": ["view_report"],
-        "*":       ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 3 ───────────────────────────────────────────
     "accountant": {
         "billing": ["view_invoice", "add_payment", "view_payment"],
         "reports": ["view_report"],
-        "*":       ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 4 ───────────────────────────────────────────
     "hr": {
         "accounts": ["add_user", "change_user", "view_user"],
-        "*":        ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 5 ───────────────────────────────────────────
     "admin_officer": {
-        "accounts":     ["view_user"],
+        "accounts": ["view_user"],
         "reservations": ["view_reservation"],
-        "*":            ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 6 ───────────────────────────────────────────
     "supervisor": {
         "reservations": ["view_reservation", "change_reservation"],
-        "rooms":        ["view_room"],
-        "*":            ["view_dashboard"],
+        "rooms": ["view_room"],
+        "*": ["view_dashboard"],
     },
-
     # 7 ───────────────────────────────────────────
     "chef": {
         "restaurant": ["view_menuitem", "add_kot", "view_kot"],
-        "*":          ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 8 ───────────────────────────────────────────
     "bar_waiter": {
         "restaurant": ["view_menuitem", "add_kot", "view_kot"],
-        "*":          ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 9 ───────────────────────────────────────────
     "room_service": {
         "restaurant": ["view_menuitem", "add_kot"],
         "reservations": ["view_reservation"],
-        "*":            ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 10 ──────────────────────────────────────────
     "restaurant_cashier": {
-        "billing":    ["add_invoice", "add_payment", "view_invoice", "view_payment"],
+        "billing": ["add_invoice", "add_payment", "view_invoice", "view_payment"],
         "restaurant": ["view_kot"],
-        "*":          ["view_dashboard"],
+        "*": ["view_dashboard"],
     },
-
     # 11 ──────────────────────────────────────────
     "receptionist": {
         "reservations": ["add_reservation", "change_reservation", "view_reservation"],
-        "rooms":        ["view_room"],
-        "customers":    ["add_customer", "change_customer", "view_customer"],
-        "*":            ["view_dashboard"],
+        "rooms": ["view_room"],
+        "customers": ["add_customer", "change_customer", "view_customer"],
+        "*": ["view_dashboard"],
     },
 }
 
