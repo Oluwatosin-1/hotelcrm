@@ -122,6 +122,24 @@
           </ul>
         </li>
         {% endif %}
+         {# ───────── INCOME ───────── #}
+         {% if perms.income.view_income %}
+         <li class="submenu {% if request.resolver_match.app_name == 'income' %}active{% endif %}">
+           <a href="#">
+             <span class="menu-side"><img src="{% static 'assets/img/icons/menu-icon-12.svg' %}" alt=""></span>
+             <span>Income</span><span class="menu-arrow"></span>
+           </a>
+           <ul>
+             {% url 'income:income-list' as income_list %}
+             <li><a href="{{ income_list }}" class="{% if request.path == income_list %}active{% endif %}">Income List</a></li>
+ 
+             {% if perms.income.add_income %}
+               {% url 'income:income-create' as income_create %}
+               <li><a href="{{ income_create }}" class="{% if request.path == income_create %}active{% endif %}">Add Income</a></li>
+             {% endif %}
+           </ul>
+         </li>
+         {% endif %}
 
         {# ───────── RESERVATIONS ────── #}
         {% if perms.reservations.view_reservation %}

@@ -9,11 +9,31 @@ from django.views.generic import (
 from django.contrib.messages.views import SuccessMessageMixin
 from .models import Expense, ExpenseCategory, ExpenseSubCategory
 from .forms import ExpenseForm, ExpenseCategoryForm, ExpenseSubCategoryForm
+from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Sum 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 # ----------------------------
 # Expense Views
 # ----------------------------
 
+def expense_report(request):
+    user = request.user
+    start_of_week = timezone.now() - timezone.timedelta(days=timezone.now().weekday())
+    start_of_month = timezone.now().replace(day=1)
+
+    daily_expenses = Expense.objects.filter(user=user, date__date=timezone.now().date()).aggregate(total=Sum("amount"))['total'] or 0
+    weekly_expenses = Expense.objects.filter(user=user, date__gte=start_of_week).aggregate(total=Sum("amount"))['total'] or 0
+    monthly_expenses = Expense.objects.filter(user=user, date__gte=start_of_month).aggregate(total=Sum("amount"))['total'] or 0
+
+    context = {
+        'daily_expenses': daily_expenses,
+        'weekly_expenses': weekly_expenses,
+        'monthly_expenses': monthly_expenses
+    }
+
+    return render(request, 'expenses/expense_report.html', context)
 
 class ExpenseListView(ListView):
     model = Expense
@@ -136,3 +156,9 @@ class ExpenseSubCategoryDeleteView(DeleteView):
     model = ExpenseSubCategory
     template_name = "expenses/subcategory_confirm_delete.html"
     success_url = reverse_lazy("expenses:subcategory-list")
+ 
+class AdminExpenseReportView(PermissionRequiredMixin, ListView):
+    permission_required = 'expenses.view_expense'
+    model = Expense
+    template_name = 'expenses/expense_report.html'
+    context_object_name = 'expenses'

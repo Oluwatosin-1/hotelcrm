@@ -10,10 +10,44 @@ from django.views.generic import (
     TemplateView,
 )
 from django.utils import timezone
-
 from reports.forms import ReportForm
 from reports.models import Report
+from django.shortcuts import render  
+from .models import Income
 
+# View for listing income entries
+class IncomeListView(ListView):
+    model = Income
+    template_name = 'income/income_list.html'
+    context_object_name = 'income_entries'
+    
+    def get_queryset(self):
+        return Income.objects.filter(user=self.request.user).order_by("-date")
+
+# View for creating income entries
+class IncomeCreateView(CreateView):
+    model = Income
+    template_name = 'income/income_form.html'
+    fields = ['description', 'amount', 'category', 'payment_method', 'notes']
+    success_url = reverse_lazy('income:income-list')
+
+# View for income report
+def income_report(request):
+    user = request.user
+    start_of_week = timezone.now() - timezone.timedelta(days=timezone.now().weekday())
+    start_of_month = timezone.now().replace(day=1)
+
+    daily_income = Income.objects.filter(user=user, date__date=timezone.now().date()).aggregate(total=Sum("amount"))['total'] or 0
+    weekly_income = Income.objects.filter(user=user, date__gte=start_of_week).aggregate(total=Sum("amount"))['total'] or 0
+    monthly_income = Income.objects.filter(user=user, date__gte=start_of_month).aggregate(total=Sum("amount"))['total'] or 0
+
+    context = {
+        'daily_income': daily_income,
+        'weekly_income': weekly_income,
+        'monthly_income': monthly_income
+    }
+
+    return render(request, 'income/income_report.html', context) 
 
 # List Reports: Show all reports if the user can edit; otherwise limit to own reports.
 class ReportListView(LoginRequiredMixin, ListView):
@@ -194,3 +228,9 @@ class PoliceReportView(LoginRequiredMixin, TemplateView):
         # For detailed report, you could pass a list:
         context["police_reports"] = []  # e.g., list of incident objects
         return context
+
+class IncomeReportView(PermissionRequiredMixin, ListView):
+    permission_required = 'income.view_income'
+    model = Income
+    template_name = 'income/income_report.html'
+    context_object_name = 'income'

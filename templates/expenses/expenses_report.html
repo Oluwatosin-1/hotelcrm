@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header">
+        <h4 class="mb-0">Expense Report</h4>
+      </div>
+      <div class="card-body">
+        <h5>Daily Expenses: ₦{{ daily_expenses }}</h5>
+        <h5>Weekly Expenses: ₦{{ weekly_expenses }}</h5>
+        <h5>Monthly Expenses: ₦{{ monthly_expenses }}</h5>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
