@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-j3t*7nf&8hmv@jivrwpae)q@bi^s-&bw8w44o+(34yf*yaa@_h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*", " "]
+ALLOWED_HOSTS = ["*", "portal.asfedloungeandsuites.com"]
 
 
 # Application definition
@@ -154,13 +154,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # STATIC_URL = "/static/"
-# STATIC_ROOT = "/home/ddevhub/affiliate.ddevhub.com/static"
-# # STATIC_ROOT = '/home/ddevhub/public_html/static'
+# STATIC_ROOT = "/home/skillsqu/hotelcrm/static"
+# STATIC_ROOT = '/home/skillsqu/hotelcrm/staticfiles'
 
 # STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # MEDIA_URL = "/media/"
-# MEDIA_ROOT = "/home/ddevhub/affiliate.ddevhub.com/media"
+# MEDIA_ROOT = "/home/skillsqu/hotelcrm/media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
