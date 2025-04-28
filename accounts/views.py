@@ -25,6 +25,7 @@ from datetime import datetime, timezone as py_tz
 from django.utils import timezone
 from billing.models import Invoice
 from housekeeping.models import Laundry, ComplaintTicket
+from reports.views import PoliceReportView
 from rooms.models import Room
 from customers.models import Customer
 from restaurant.models import MenuItem
@@ -152,7 +153,6 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
 #  DASHBOARD
 # ───────────────────────────────────────────────────────────────
 
-
 class DashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     permission_required = "accounts.view_dashboard"
     template_name = "dashboard/index.html"
@@ -239,6 +239,10 @@ class DashboardView(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
             created_at__gte=now() - timedelta(days=7)
         ).aggregate(total_sales=Sum("total_amount"))
         ctx["total_sales_last_7_days"] = last_7_days_sales["total_sales"] or 0
+        # ─── Pull in police‐report numbers ───
+        police_ctx = PoliceReportView().get_context_data()
+        ctx["total_incidents"]   = police_ctx.get("total_incidents", 0)
+        ctx["unresolved_cases"]  = police_ctx.get("unresolved_cases", 0)
 
         # Fetching the top 10 rooms
         ctx["rooms"] = (

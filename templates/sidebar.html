@@ -131,11 +131,11 @@
            </a>
            <ul>
              {% url 'income:income-list' as income_list %}
-             <li><a href="{{ income_list }}" class="{% if request.path == income_list %}active{% endif %}">Income List</a></li>
+             <li><a href="{% url 'reports:income-list' %}" class="{% if request.path == income_list %}active{% endif %}">Income List</a></li>
  
              {% if perms.income.add_income %}
                {% url 'income:income-create' as income_create %}
-               <li><a href="{{ income_create }}" class="{% if request.path == income_create %}active{% endif %}">Add Income</a></li>
+               <li><a href="{% url 'reports:income-create' %}" class="{% if request.path == income_create %}active{% endif %}">Add Income</a></li>
              {% endif %}
            </ul>
          </li>
@@ -238,6 +238,14 @@
 
             {% url 'reports:kot-report' as r_kot %}
             <li><a href="{{ r_kot }}" class="{% if request.path == r_kot %}active{% endif %}">KOT Report</a></li>
+            {# ────────── NEW: Income Report ────────── #}
+            {% url 'reports:income-report' as r_income %}
+            <li>
+              <a href="{{ r_income }}"
+                class="{% if request.path == r_income %}active{% endif %}">
+                Income Report
+              </a>
+            </li>
           </ul>
         </li>
         {% endif %}

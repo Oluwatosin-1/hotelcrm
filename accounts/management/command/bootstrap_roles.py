@@ -14,7 +14,14 @@ def ensure_view_dashboard_perm():
         content_type=ct,
         defaults={"name": "Can view dashboard"},
     )
-
+    
+def ensure_permission_exists(codename, app_label, name):
+    ct = ContentType.objects.get_for_model(apps.get_model(app_label, "Income"))
+    Permission.objects.get_or_create(
+        codename=codename,
+        content_type=ct,
+        defaults={"name": name},
+    )
 
 ROLE_PERMS: dict[str, dict[str, list[str]]] = {
     # 1 ───────────────────────────────────────────
@@ -35,6 +42,7 @@ ROLE_PERMS: dict[str, dict[str, list[str]]] = {
             "view_payment",
         ],
         "reports": ["view_report"],
+        "income": ["view_income", "add_income", "change_income"],
         "*": ["view_dashboard"],
     },
     # 2 ───────────────────────────────────────────
@@ -42,17 +50,20 @@ ROLE_PERMS: dict[str, dict[str, list[str]]] = {
         "billing": ["view_invoice", "view_payment"],
         "rooms": ["view_room"],
         "reports": ["view_report"],
+        "income": ["view_income"],
         "*": ["view_dashboard"],
     },
     # 3 ───────────────────────────────────────────
     "accountant": {
         "billing": ["view_invoice", "add_payment", "view_payment"],
         "reports": ["view_report"],
+        "income": ["view_income", "add_income"],
         "*": ["view_dashboard"],
     },
     # 4 ───────────────────────────────────────────
     "hr": {
         "accounts": ["add_user", "change_user", "view_user"],
+        "income": ["view_income", "add_income"],
         "*": ["view_dashboard"],
     },
     # 5 ───────────────────────────────────────────
@@ -97,8 +108,6 @@ ROLE_PERMS: dict[str, dict[str, list[str]]] = {
         "*": ["view_dashboard"],
     },
 }
-
-
 class Command(BaseCommand):
     """
     Create / refresh one Django Group per staff role and attach the listed
@@ -111,6 +120,11 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         ensure_view_dashboard_perm()
 
+        # Ensure all necessary permissions exist for Income
+        ensure_permission_exists("view_income", "income", "Can view income")
+        ensure_permission_exists("add_income", "income", "Can add income")
+        ensure_permission_exists("change_income", "income", "Can change income")
+        
         for role, app_perms in ROLE_PERMS.items():
             group, _ = Group.objects.get_or_create(name=role)
             group.permissions.clear()
@@ -129,3 +143,5 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"✓  Group `{role}` updated"))
 
         self.stdout.write(self.style.SUCCESS("✔  All staff role groups refreshed"))
+
+

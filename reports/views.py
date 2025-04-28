@@ -9,11 +9,17 @@ from django.views.generic import (
     DeleteView,
     TemplateView,
 )
+from django.http import HttpResponse
+
+import csv
 from django.utils import timezone
-from reports.forms import ReportForm
+from django.contrib import messages
+from reports.forms import IncomeForm, ReportForm
 from reports.models import Report
 from django.shortcuts import render  
-from .models import Income
+from .models import Income  
+from .models import Income, IncomeCategory
+from datetime import datetime
 
 # View for listing income entries
 class IncomeListView(ListView):
@@ -24,30 +30,112 @@ class IncomeListView(ListView):
     def get_queryset(self):
         return Income.objects.filter(user=self.request.user).order_by("-date")
 
-# View for creating income entries
 class IncomeCreateView(CreateView):
     model = Income
     template_name = 'income/income_form.html'
-    fields = ['description', 'amount', 'category', 'payment_method', 'notes']
-    success_url = reverse_lazy('income:income-list')
+    form_class = IncomeForm
+    success_url = '/reports/income/'  # Adjust the success URL as per your app's URL configuration
 
-# View for income report
+    def form_valid(self, form):
+        print("Form is valid!")
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("Form is invalid!")
+        print(form.errors)  # This will log form errors in the console
+        messages.error(self.request, "There was an error with your form. Please check the fields.")
+        return super().form_invalid(form)
+
+
 def income_report(request):
     user = request.user
-    start_of_week = timezone.now() - timezone.timedelta(days=timezone.now().weekday())
-    start_of_month = timezone.now().replace(day=1)
 
-    daily_income = Income.objects.filter(user=user, date__date=timezone.now().date()).aggregate(total=Sum("amount"))['total'] or 0
-    weekly_income = Income.objects.filter(user=user, date__gte=start_of_week).aggregate(total=Sum("amount"))['total'] or 0
-    monthly_income = Income.objects.filter(user=user, date__gte=start_of_month).aggregate(total=Sum("amount"))['total'] or 0
+    # 1) parse or default the date range
+    s = request.GET.get("start_date")
+    e = request.GET.get("end_date")
+    if s and e:
+        # ISO dates come in as YYYY-MM-DD
+        start = timezone.make_aware(timezone.datetime.fromisoformat(s + "T00:00"))
+        end   = timezone.make_aware(timezone.datetime.fromisoformat(e + "T23:59:59"))
+    else:
+        today = timezone.now().date()
+        start = timezone.make_aware(
+            timezone.datetime.combine(today, timezone.datetime.min.time())
+        )
+        end = timezone.make_aware(
+            timezone.datetime.combine(today, timezone.datetime.max.time())
+        )
 
-    context = {
-        'daily_income': daily_income,
-        'weekly_income': weekly_income,
-        'monthly_income': monthly_income
-    }
+    qs = Income.objects.filter(user=user, date__gte=start, date__lte=end)
+    total = qs.aggregate(total=Sum("amount"))["total"] or 0
 
-    return render(request, 'income/income_report.html', context) 
+    # 2) build category breakdown + percent share
+    categories = []
+    for cat in IncomeCategory.objects.all():
+        cat_total = qs.filter(category=cat).aggregate(total=Sum("amount"))["total"] or 0
+        if cat_total:
+            pct = round(float(cat_total) / float(total) * 100, 2) if total else 0
+            categories.append({
+                "name": cat.name,
+                "cat_total": cat_total,
+                "pct": pct,
+            })
+
+    # 3) recent entries
+    recent = qs.order_by("-date")[:20]
+
+    # 4) sparkline: daily buckets
+    day = start
+    dates, totals = [], []
+    while day <= end:
+        nxt = day + timezone.timedelta(days=1)
+        amt = qs.filter(date__gte=day, date__lt=nxt).aggregate(total=Sum("amount"))["total"] or 0
+        dates.append(day.strftime("%Y-%m-%d"))
+        totals.append(float(amt))
+        day = nxt
+
+    return render(request, "income/income_report.html", {
+        "start":    start,
+        "end":      end,
+        "total":    total,
+        "categories": categories,
+        "recent":     recent,
+        "trend":      {"dates": dates, "totals": totals},
+    })
+
+
+def income_export(request):
+    user = request.user
+    s = request.GET.get("start_date")
+    e = request.GET.get("end_date")
+    # same parse logic as above...
+    if s and e:
+        start = timezone.make_aware(timezone.datetime.fromisoformat(s + "T00:00"))
+        end   = timezone.make_aware(timezone.datetime.fromisoformat(e + "T23:59:59"))
+    else:
+        today = timezone.now().date()
+        start = timezone.make_aware(
+            timezone.datetime.combine(today, timezone.datetime.min.time())
+        )
+        end = timezone.make_aware(
+            timezone.datetime.combine(today, timezone.datetime.max.time())
+        )
+
+    qs = Income.objects.filter(user=user, date__gte=start, date__lte=end).order_by("date")
+    filename = f"income_{start.date()}_to_{end.date()}.csv"
+    resp = HttpResponse(content_type="text/csv")
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    writer = csv.writer(resp)
+    writer.writerow(["Date","Description","Category","Amount"])
+    for inc in qs:
+        writer.writerow([
+            inc.date.strftime("%Y-%m-%d %H:%M"),
+            inc.description,
+            inc.category.name if inc.category else "",
+            f"{inc.amount:.2f}"
+        ])
+    return resp
 
 # List Reports: Show all reports if the user can edit; otherwise limit to own reports.
 class ReportListView(LoginRequiredMixin, ListView):
@@ -111,8 +199,7 @@ class DailySalesReportView(LoginRequiredMixin, TemplateView):
         # Optionally, also add a list of invoices for today
         context["daily_sales_data"] = Invoice.objects.filter(invoice_date__date=today)
         return context
-
-
+ 
 # General Report: Show aggregated metrics from various apps
 class GeneralReportView(LoginRequiredMixin, TemplateView):
     template_name = "reports/general_report.html"
