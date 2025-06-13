@@ -7,6 +7,7 @@ from django.views import View
 from django.urls import reverse_lazy
 from .forms import ReservationForm, MenuItemFormSet, MiscFormSet
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 
 class ReservationListView(ListView):
@@ -31,7 +32,9 @@ class ReservationListView(ListView):
             qs = qs.filter(status=status)
         return qs
 
-    def get_context_data(self, **kwargs):
+    from typing import Any
+
+    def get_context_data(self, **kwargs: Any):
         ctx = super().get_context_data(**kwargs)
         ctx["reservation_status_choices"] = Reservation.STATUS_CHOICES
         return ctx
